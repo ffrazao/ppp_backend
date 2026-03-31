@@ -3,23 +3,22 @@
 spring:
   jpa:
     hibernate:
-      jdbc:
-        generate_statistics: true  # apenas em dev
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
-        use_sql_comments: true
-        generate_statistics: true
+        '[format_sql]': true
+        '[use_sql_comments]': true
+        '[generate_statistics]': false
         session:
           events:
             log:
-              LOG_QUERIES_SLOWER_THAN_MS: 500
+              '[LOG_QUERIES_SLOWER_THAN_MS]': 500
         jdbc:
-          batch_size: 10        
+          '[batch_size]': 10
         cache:
-          use_second_level_cache: false
-          use_query_cache: false
+          '[use_second_level_cache]': false
+          '[use_query_cache]': false
 
   devtools:
     restart:
@@ -43,84 +42,75 @@ management:
   # UNIFICADO: todas as configurações de endpoint em um único bloco
   endpoint:
     shutdown:
-      enabled: true
+      access: unrestricted
     env:
-      enabled: true
+      access: unrestricted
     beans:
-      enabled: true
+      access: unrestricted
     heapdump:
-      enabled: true
+      access: unrestricted
     threaddump:
-      enabled: true
+      access: unrestricted
     configprops:
-      enabled: true
+      access: unrestricted
     flyway:
-      enabled: true
+      access: unrestricted
     liquibase:
-      enabled: true
+      access: unrestricted
     scheduledtasks:
-      enabled: true
+      access: unrestricted
     sessions:
-      enabled: true
+      access: unrestricted
     metrics:
-      enabled: true
-      export:
-        prometheus:
-          enabled: true
+      access: unrestricted
     health:
       show-details: always
       show-components: always
       probes:
         enabled: true
-  
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         step: 10s
-    distribution:
-      percentiles-histogram:
-        http.server.requests: true
-        jvm.gc.pause: true
-      slo:
-        http.server.requests: 1ms, 5ms, 10ms, 25ms, 50ms, 100ms, 250ms, 500ms, 1s
 
 logging:
   level:
-    ROOT: OFF
+    # Principal do framework spring
+    '[org.springframework]': INFO
 
-    # Sua aplicação
-    br.gov.df.seagri: TRACE
-    
+    # Web/Security (opcional - pode ser verboso)
+    '[org.apache.catalina]': WARN
+    '[org.apache.coyote]': WARN
+    '[org.apache.tomcat]': WARN
+    '[org.springframework.web]': DEBUG
+    '[org.springframework.security]': DEBUG
+
+    '[org.springframework.boot.env]': DEBUG  # Para debug do DotenvEnvironmentPostProcessor
+
     # SQL e parâmetros
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql: TRACE
-    
+    '[org.hibernate.SQL]': DEBUG
+    '[org.hibernate.type.descriptor.sql]': TRACE
+    '[org.hibernate.orm.results]': WARN
+
     # Transações
-    org.springframework: ERROR
-    org.springframework.transaction: DEBUG
-    org.springframework.orm.jpa: DEBUG
+    '[org.springframework.transaction]': DEBUG
+    '[org.springframework.orm.jpa]': DEBUG
 
-    # Actuator - logs detalhados em dev
-    org.springframework.boot.actuate: DEBUG
-    io.micrometer: DEBUG
- 
-     # Web/Security (opcional - pode ser verboso)
-    org.springframework.web: DEBUG
-    org.springframework.security: DEBUG
+    # CORS e MVC (útil para debug de problemas de CORS ou roteamento)
+    '[org.springframework.web.cors]': DEBUG
+    '[org.springframework.web.servlet.handler]': DEBUG
 
-    org.springframework.web.cors: DEBUG
-    org.springframework.web.servlet.handler: DEBUG
-    
     # Pool de conexões
-    #com.zaxxer.hikari: WARN
-    #com.zaxxer.hikari.pool: WARN
+    '[com.zaxxer.hikari]': WARN
+    '[com.zaxxer.hikari.pool]': WARN
     
     # Flyway (útil para ver migrações)
-    #org.flywaydb: DEBUG
+    #'[org.flywaydb]': DEBUG
 
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-
+    # Actuator - logs (útil para debug)
+    #'[org.springframework.boot.actuate]': DEBUG
+    #'[io.micrometer]': DEBUG
+ 
 # CORS mais permissivo em dev
 cors:
   debug: false

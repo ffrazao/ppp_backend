@@ -187,14 +187,21 @@ info:
 logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: '{"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%p","thread":"%t","logger":"%c","message":"%m"}%n'
   file:
-    name: logs/application.log
-    max-size: 10MB
-    max-history: 7
+    name: ${LOG_PATH:logs}/application.log
+    max-size: 100MB  # Maior que dev
+    max-history: 30  # 30 dias de histórico
+    total-size-cap: 2GB
+  logback:
+    rollingpolicy:
+      max-history: 30
+      max-file-size: 100MB
+      total-size-cap: 2GB
   level:
-    # Atuator logs (útil para debug)
-    org.springframework.boot.actuate: INFO
+    ROOT: INFO
+    # Sua aplicação
+    '[br.gov.df.seagri]': TRACE
 
 armazenamento:
   diretorio:

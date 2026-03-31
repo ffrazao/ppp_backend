@@ -9,23 +9,23 @@ spring:
     properties:
       hibernate:
         # Formatação desabilitada em produção (performance)
-        format_sql: false
+        '[format_sql]': false
         # Otimizações de batch MAIORES em produção
         jdbc:
-          batch_size: 50  # Maior que em dev
-          batch_versioned_data: true
-        order_inserts: true
-        order_updates: true
+          '[batch_size]': 50  # Maior que em dev
+          '[batch_versioned_data]': true
+        '[order_inserts]': true
+        '[order_updates]': true
         # Pool de conexões do Hibernate (delegado para Hikari, então pode comentar)
         # connection:
         #   pool_size: 10
         
         # Cache de segundo nível (se usar)
         cache:
-          use_second_level_cache: true
-          use_query_cache: true
+          '[use_second_level_cache]': true
+          '[use_query_cache]': true
           region:
-            factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+            '[factory_class]': org.hibernate.cache.jcache.JCacheRegionFactory
 
   # Pool de conexões - configuração mais agressiva em produção
   datasource:
@@ -130,23 +130,23 @@ management:
       probes:
         enabled: true
     info:
-      enabled: true
+      access: none
     metrics:
-      enabled: true
+      access: none
     prometheus:
-      enabled: true
+      access: none
     env:
-      enabled: false
+      access: none
     beans:
-      enabled: false
+      access: none
     shutdown:
-      enabled: false
+      access: none
     heapdump:
-      enabled: false
+      access: none
     threaddump:
-      enabled: false
+      access: none
     loggers:
-      enabled: true  # Permite alterar logs em produção (com controle)
+      access: none  # Permite alterar logs em produção (com controle)
       roles: ADMIN
   metrics:
     export:
@@ -155,9 +155,9 @@ management:
         step: 1m
     distribution:
       percentiles-histogram:
-        http.server.requests: true
+        '[http.server.requests]': true
       slo:
-        http.server.requests: 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s
+        '[http.server.requests]': 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s
     tags:
       application: ${spring.application.name}
       environment: production
@@ -175,29 +175,7 @@ management:
 # Logging em produção - estruturado e rotacionado
 logging:
   level:
-    # Apenas erros e warnings
     ROOT: WARN
-    br.gov.df.seagri: INFO  # INFO para sua aplicação
-    org.springframework: WARN
-    org.hibernate: WARN
-    org.flywaydb: INFO
-    com.zaxxer.hikari: WARN
-    org.springframework.boot.actuate: ERROR
-    io.micrometer: WARN
-    
-  pattern:
-    # JSON em produção para integração com ferramentas de log
-    file: '{"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%p","thread":"%t","logger":"%c","message":"%m"}%n'
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"  # Simples no console
-  
-  file:
-    name: ${LOG_PATH:/var/log/seagri}/application.log
-    max-size: 100MB  # Maior que dev
-    max-history: 30  # 30 dias de histórico
-    total-size-cap: 2GB
-  
-  logback:
-    rollingpolicy:
-      max-history: 30
-      max-file-size: 100MB
-      total-size-cap: 2GB
+
+    # Sua aplicação
+    '[br.gov.df.seagri]': INFO
