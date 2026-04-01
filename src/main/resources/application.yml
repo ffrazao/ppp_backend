@@ -47,14 +47,14 @@ spring:
     show-sql: false # Mostra as consultas no console durante o dev
     properties:
       hibernate:
-        format_sql: true
-        default_schema: public  # Explícito é melhor que implícito
+        '[format_sql]': true
+        '[default_schema]': public  # Explícito é melhor que implícito
         connection:
           characterEncoding: utf-8
           useUnicode: true
         jdbc:
           lob:
-            non_contextual_creation: true  # Evita warning no PostgreSQL
+            '[non_contextual_creation]': true  # Evita warning no PostgreSQL
 
   # Configuração de Segurança e Integração com o Keycloak (Resource Server)
   security:
@@ -100,26 +100,26 @@ management:
           down: 503
           out-of-service: 503
     info:
-      enabled: true
+      access: unrestricted
     metrics:
-      enabled: true
+      access: unrestricted
       # Tags comuns para todas as métricas
       tags:
         application: ${spring.application.name}
         environment: ${spring.profiles.active}
     prometheus:
-      enabled: true
+      access: unrestricted
     # Endpoints sensíveis desabilitados por padrão
     shutdown:
-      enabled: false
+      access: unrestricted
     env:
-      enabled: false
+      access: unrestricted
     beans:
-      enabled: false
+      access: unrestricted
     mappings:
-      enabled: true
+      access: unrestricted
     loggers:
-      enabled: true
+      access: unrestricted
   
   # Informações customizadas para o endpoint /info
   info:
@@ -133,15 +133,11 @@ management:
   
   # Métricas específicas
   metrics:
-    export:
-      prometheus:
-        enabled: true
-        step: 1m
     distribution:
       percentiles-histogram:
-        http.server.requests: true
+        '[http.server.requests]': true
       slo:
-        http.server.requests: 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s
+        '[http.server.requests]': 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s
     tags:
       application: ${spring.application.name}
       environment: ${spring.profiles.active}
