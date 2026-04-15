@@ -9,7 +9,7 @@ import br.gov.df.seagri.modulo_organizacao.web.dto.OrganizacaoResponseDTO;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
@@ -26,7 +26,7 @@ public class OrganizacaoController extends AbstractCrudController<Organizacao, O
         if (organizacao.getId() == null) {
             organizacao.setStatus("ACTIVE"); // Status padrão da RFC-0005
             organizacao.setCriadoPor(obterUsuarioAutenticado());
-            organizacao.setCriadoEm(LocalDateTime.now(ZoneOffset.UTC));
+            organizacao.setCriadoEm(OffsetDateTime.now(ZoneOffset.UTC));
         }
     }
 }

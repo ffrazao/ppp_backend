@@ -26,7 +26,7 @@ public class ArmazenamentoLocalSrv {
 
     @PostConstruct
     public void init() {
-        System.out.println(diretorioRaiz);
+        log.debug(diretorioRaiz);
         try {
             log.debug("diretorioRaiz: [{}]", diretorioRaiz);
             if (!Files.exists(getDiretorioRaiz())) {
@@ -62,7 +62,7 @@ public class ArmazenamentoLocalSrv {
             Path caminhoArquivo = getDiretorioRaiz().resolve(referenciaImagem.toString() + ".jpg");
 
             Files.write(caminhoArquivo, bytesImagem);
-            
+
             log.debug("💾 FOTO SALVA COM SUCESSO NO DISCO: {}", caminhoArquivo.toString());
 
             return referenciaImagem;

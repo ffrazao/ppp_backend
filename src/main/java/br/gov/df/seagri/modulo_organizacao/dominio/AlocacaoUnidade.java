@@ -1,15 +1,20 @@
 package br.gov.df.seagri.modulo_organizacao.dominio;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
 import br.gov.df.seagri.dominio_central.dominio.AuditoriaCompleta;
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @Entity
 @Table(name = "alocacao_unidade")
@@ -37,11 +42,11 @@ public class AlocacaoUnidade extends EntidadeBase implements AuditoriaCompleta {
 
     @Setter
     @Column(name = "data_inicio", nullable = false)
-    private LocalDateTime dataInicio;
+    private OffsetDateTime dataInicio;
 
     @Setter
     @Column(name = "data_fim")
-    private LocalDateTime dataFim;
+    private OffsetDateTime dataFim;
 
     @Setter
     @Column(name = "criado_por", nullable = false, length = 64, updatable = false)
@@ -49,7 +54,7 @@ public class AlocacaoUnidade extends EntidadeBase implements AuditoriaCompleta {
 
     @Setter
     @Column(name = "criado_em", nullable = false, updatable = false)
-    private LocalDateTime criadoEm;
+    private OffsetDateTime criadoEm;
 
     @Setter
     @Column(name = "atualizado_por", length = 64)
@@ -57,23 +62,24 @@ public class AlocacaoUnidade extends EntidadeBase implements AuditoriaCompleta {
 
     @Setter
     @Column(name = "atualizado_em")
-    private LocalDateTime atualizadoEm;
+    private OffsetDateTime atualizadoEm;
 
     public AlocacaoUnidade(VinculoUsuario vinculoUsuario, Unidade unidade, String papelOperacional, String criadoPor) {
         this.vinculoUsuario = vinculoUsuario;
         this.unidade = unidade;
         this.papelOperacional = papelOperacional;
         this.status = "ATIVO";
-        this.dataInicio = LocalDateTime.now(ZoneOffset.UTC);
+        this.dataInicio = OffsetDateTime.now(ZoneOffset.UTC);
         this.criadoPor = criadoPor;
-        this.criadoEm = LocalDateTime.now(ZoneOffset.UTC);
+        this.criadoEm = OffsetDateTime.now(ZoneOffset.UTC);
     }
-    
+
     // Método auxiliar para verificar se a alocação está vigente hoje
     public boolean isVigente() {
         if (!"ATIVO".equals(this.status)) return false;
-        LocalDateTime agora = LocalDateTime.now(ZoneOffset.UTC);
+        OffsetDateTime agora = OffsetDateTime.now(ZoneOffset.UTC);
         if (agora.isBefore(this.dataInicio)) return false;
         return this.dataFim == null || agora.isBefore(this.dataFim);
     }
+
 }

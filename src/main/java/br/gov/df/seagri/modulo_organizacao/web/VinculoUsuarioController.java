@@ -9,7 +9,7 @@ import br.gov.df.seagri.modulo_organizacao.web.dto.VinculoUsuarioResponseDTO;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
@@ -26,7 +26,7 @@ public class VinculoUsuarioController extends AbstractCrudTenantController<Vincu
         if (entidade.getId() == null) {
             entidade.setStatus("ATIVO");
             entidade.setCriadoPor(obterUsuarioAutenticado());
-            entidade.setCriadoEm(LocalDateTime.now(ZoneOffset.UTC));
+            entidade.setCriadoEm(OffsetDateTime.now(ZoneOffset.UTC));
         }
     }
 }

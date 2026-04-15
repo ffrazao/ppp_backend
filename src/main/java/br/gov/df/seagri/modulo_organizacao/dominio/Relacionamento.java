@@ -1,17 +1,22 @@
 package br.gov.df.seagri.modulo_organizacao.dominio;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.UUID;
+
 import br.gov.df.seagri.dominio_central.dominio.AuditoriaCompleta;
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
 import br.gov.df.seagri.dominio_central.dominio.PertenceOrganizacao;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.UUID;
 
 @Entity
 @Table(name = "relacionamento")
@@ -35,17 +40,17 @@ public class Relacionamento extends EntidadeBase implements AuditoriaCompleta, P
 
     @Setter
     @Column(name = "inicio_validade")
-    private LocalDateTime inicioValidade;
+    private OffsetDateTime inicioValidade;
 
     @Setter
     @Column(name = "fim_validade")
-    private LocalDateTime fimValidade;
+    private OffsetDateTime fimValidade;
 
     @Column(name = "criado_por", nullable = false, length = 64, updatable = false)
     private String criadoPor;
 
     @Column(name = "criado_em", nullable = false, updatable = false)
-    private LocalDateTime criadoEm;
+    private OffsetDateTime criadoEm;
 
     @Setter
     @Column(name = "atualizado_por", length = 64)
@@ -53,7 +58,7 @@ public class Relacionamento extends EntidadeBase implements AuditoriaCompleta, P
 
     @Setter
     @Column(name = "atualizado_em")
-    private LocalDateTime atualizadoEm;
+    private OffsetDateTime atualizadoEm;
 
     public Relacionamento(Organizacao organizacao, String sujeitoId, String objetoId, String tipoRelacionamento, String criadoPor) {
         this.organizacao = organizacao;
@@ -61,7 +66,7 @@ public class Relacionamento extends EntidadeBase implements AuditoriaCompleta, P
         this.objetoId = objetoId;
         this.tipoRelacionamento = tipoRelacionamento;
         this.criadoPor = criadoPor;
-        this.criadoEm = LocalDateTime.now(ZoneOffset.UTC);
+        this.criadoEm = OffsetDateTime.now(ZoneOffset.UTC);
     }
 
     @Override

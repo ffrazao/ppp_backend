@@ -1,17 +1,23 @@
 package br.gov.df.seagri.modulo_organizacao.dominio;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.UUID;
+
 import br.gov.df.seagri.dominio_central.dominio.AuditoriaCompleta;
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
 import br.gov.df.seagri.dominio_central.dominio.PertenceOrganizacao;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.UUID;
 
 @Entity
 @Table(name = "vinculo_usuario", uniqueConstraints = {
@@ -41,11 +47,11 @@ public class VinculoUsuario extends EntidadeBase implements AuditoriaCompleta, P
     // NOVOS CAMPOS DE TEMPORALIDADE DA RFC-0010
     @Setter
     @Column(name = "data_inicio", nullable = false)
-    private LocalDateTime dataInicio;
+    private OffsetDateTime dataInicio;
 
     @Setter
     @Column(name = "data_fim")
-    private LocalDateTime dataFim;
+    private OffsetDateTime dataFim;
 
     @Setter
     @Column(name = "criado_por", nullable = false, length = 64, updatable = false)
@@ -53,7 +59,7 @@ public class VinculoUsuario extends EntidadeBase implements AuditoriaCompleta, P
 
     @Setter
     @Column(name = "criado_em", nullable = false, updatable = false)
-    private LocalDateTime criadoEm;
+    private OffsetDateTime criadoEm;
 
     @Setter
     @Column(name = "atualizado_por", length = 64)
@@ -61,16 +67,16 @@ public class VinculoUsuario extends EntidadeBase implements AuditoriaCompleta, P
 
     @Setter
     @Column(name = "atualizado_em")
-    private LocalDateTime atualizadoEm;
+    private OffsetDateTime atualizadoEm;
 
     public VinculoUsuario(Organizacao organizacao, String usuarioId, String papel, String criadoPor) {
         this.organizacao = organizacao;
         this.usuarioId = usuarioId;
         this.papel = papel;
         this.status = "ATIVO";
-        this.dataInicio = LocalDateTime.now(ZoneOffset.UTC); // Inicializa com a data atual
+        this.dataInicio = OffsetDateTime.now(ZoneOffset.UTC); // Inicializa com a data atual
         this.criadoPor = criadoPor;
-        this.criadoEm = LocalDateTime.now(ZoneOffset.UTC);
+        this.criadoEm = OffsetDateTime.now(ZoneOffset.UTC);
     }
 
     @Override

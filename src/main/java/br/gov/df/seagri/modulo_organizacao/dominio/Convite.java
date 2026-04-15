@@ -1,13 +1,18 @@
 package br.gov.df.seagri.modulo_organizacao.dominio;
 
+import java.time.OffsetDateTime;
+
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "convite")
@@ -32,7 +37,7 @@ public class Convite extends EntidadeBase {
     private String papelEsperado;
 
     @Column(name = "data_expiracao", nullable = false)
-    private LocalDateTime dataExpiracao;
+    private OffsetDateTime dataExpiracao;
 
     @Setter
     @Column(name = "usado", nullable = false)
@@ -42,7 +47,7 @@ public class Convite extends EntidadeBase {
     private String criadoPor;
 
     @Column(name = "criado_em", nullable = false, updatable = false)
-    private LocalDateTime criadoEm;
+    private OffsetDateTime criadoEm;
 
     @Setter
     @Column(name = "atualizado_por", length = 64)
@@ -50,21 +55,21 @@ public class Convite extends EntidadeBase {
 
     @Setter
     @Column(name = "atualizado_em")
-    private LocalDateTime atualizadoEm;
+    private OffsetDateTime atualizadoEm;
 
     // Construtor atualizado
-    public Convite(Organizacao organizacao, Unidade unidade, String codigo, String papelEsperado, LocalDateTime dataExpiracao, String criadoPor) {
+    public Convite(Organizacao organizacao, Unidade unidade, String codigo, String papelEsperado, OffsetDateTime dataExpiracao, String criadoPor) {
         this.organizacao = organizacao;
         this.unidade = unidade;
         this.codigo = codigo;
         this.papelEsperado = papelEsperado;
         this.dataExpiracao = dataExpiracao;
         this.criadoPor = criadoPor;
-        this.criadoEm = LocalDateTime.now();
+        this.criadoEm = OffsetDateTime.now();
         this.usado = false;
     }
 
     public boolean isValido() {
-        return !this.usado && this.dataExpiracao.isAfter(LocalDateTime.now());
+        return !this.usado && this.dataExpiracao.isAfter(OffsetDateTime.now());
     }
 }

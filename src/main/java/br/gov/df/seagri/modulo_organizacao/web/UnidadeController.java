@@ -10,7 +10,7 @@ import br.gov.df.seagri.modulo_organizacao.web.dto.UnidadeResponseDTO;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
@@ -24,11 +24,11 @@ public class UnidadeController extends AbstractCrudTenantController<Unidade, Uni
 
     @Override
     protected void vincularContexto(Unidade unidade, UUID organizacaoId) {
-        // Removemos a criação da Organizacao falsa. 
+        // Removemos a criação da Organizacao falsa.
         // Apenas injetamos a auditoria se for um novo registro.
         if (unidade.getId() == null) {
             unidade.setCriadoPor(obterUsuarioAutenticado());
-            unidade.setCriadoEm(LocalDateTime.now(ZoneOffset.UTC));
+            unidade.setCriadoEm(OffsetDateTime.now(ZoneOffset.UTC));
         }
     }
 }

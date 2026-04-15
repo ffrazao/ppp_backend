@@ -1,19 +1,25 @@
 package br.gov.df.seagri.modulo_organizacao.dominio;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import br.gov.df.seagri.dominio_central.dominio.AuditoriaCompleta;
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
 import br.gov.df.seagri.dominio_central.dominio.PertenceOrganizacao;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.UUID;
 
 @Entity
 @Table(name = "unidade")
@@ -57,7 +63,7 @@ public class Unidade extends EntidadeBase implements AuditoriaCompleta, Pertence
 
     @Setter
     @Column(name = "criado_em", nullable = false, updatable = false)
-    private LocalDateTime criadoEm;
+    private OffsetDateTime criadoEm;
 
     @Setter
     @Column(name = "atualizado_por", length = 64)
@@ -65,14 +71,14 @@ public class Unidade extends EntidadeBase implements AuditoriaCompleta, Pertence
 
     @Setter
     @Column(name = "atualizado_em")
-    private LocalDateTime atualizadoEm;
+    private OffsetDateTime atualizadoEm;
 
     public Unidade(Organizacao organizacao, String nome, String tipoGeometria, String criadoPor) {
         this.organizacao = organizacao;
         this.nome = nome;
         this.tipoGeometria = tipoGeometria;
         this.criadoPor = criadoPor;
-        this.criadoEm = LocalDateTime.now(ZoneOffset.UTC);
+        this.criadoEm = OffsetDateTime.now(ZoneOffset.UTC);
     }
 
     @Override

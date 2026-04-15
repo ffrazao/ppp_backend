@@ -1,5 +1,8 @@
 package br.gov.df.seagri.modulo_organizacao.dominio;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
 import br.gov.df.seagri.dominio_central.dominio.AuditoriaCompleta;
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
 import jakarta.persistence.Column;
@@ -9,9 +12,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @Entity
 @Table(name = "organizacao")
@@ -33,7 +33,7 @@ public class Organizacao extends EntidadeBase implements AuditoriaCompleta {
 
     @Setter
     @Column(name = "criado_em", nullable = false, updatable = false)
-    private LocalDateTime criadoEm;
+    private OffsetDateTime criadoEm;
 
     @Setter
     @Column(name = "atualizado_por", length = 64)
@@ -41,12 +41,12 @@ public class Organizacao extends EntidadeBase implements AuditoriaCompleta {
 
     @Setter
     @Column(name = "atualizado_em")
-    private LocalDateTime atualizadoEm;
+    private OffsetDateTime atualizadoEm;
 
     public Organizacao(String nome, String criadoPor) {
         this.nome = nome;
         this.status = "ATIVO";
         this.criadoPor = criadoPor;
-        this.criadoEm = LocalDateTime.now(ZoneOffset.UTC);
+        this.criadoEm = OffsetDateTime.now(ZoneOffset.UTC);
     }
 }

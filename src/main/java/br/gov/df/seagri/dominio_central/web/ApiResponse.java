@@ -1,19 +1,19 @@
 package br.gov.df.seagri.dominio_central.web;
 
-import lombok.Builder;
-import lombok.Getter;
-
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+
+import lombok.Builder;
+import lombok.Getter;
 
 @Getter
 @Builder
 public class ApiResponse<T> {
-    
+
     @Builder.Default
-    private LocalDateTime timestamp = LocalDateTime.now(ZoneOffset.UTC);
-    
+    private OffsetDateTime timestamp = OffsetDateTime.now(ZoneOffset.UTC);
+
     private int status;
     private String message;
     private T payload;

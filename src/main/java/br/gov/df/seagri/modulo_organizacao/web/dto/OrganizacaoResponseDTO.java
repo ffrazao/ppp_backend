@@ -2,7 +2,7 @@ package br.gov.df.seagri.modulo_organizacao.web.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
@@ -12,5 +12,5 @@ public class OrganizacaoResponseDTO {
     private String nome;
     private String status;
     private String criadoPor;
-    private LocalDateTime criadoEm;
+    private OffsetDateTime criadoEm;
 }

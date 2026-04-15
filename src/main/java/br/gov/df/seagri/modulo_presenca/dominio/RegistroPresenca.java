@@ -1,21 +1,22 @@
 package br.gov.df.seagri.modulo_presenca.dominio;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
 import br.gov.df.seagri.dominio_central.dominio.PertenceOrganizacao;
 import br.gov.df.seagri.dominio_central.dominio.RastreavelCriacao;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.UUID;
+import lombok.Setter;
 
 @Entity
 @Table(name = "registro_presenca")
@@ -79,21 +80,21 @@ public class RegistroPresenca extends EntidadeBase implements PertenceOrganizaca
     private String statusAdministrativo;
 
     @Column(name = "capturado_em", nullable = false, updatable = false)
-    private LocalDateTime capturadoEm;
+    private OffsetDateTime capturadoEm;
 
     @Column(name = "recebido_no_servidor_em", nullable = false, updatable = false)
-    private LocalDateTime recebidoNoServidorEm;
+    private OffsetDateTime recebidoNoServidorEm;
 
     // Campos de criação exigidos pelo SQL (V1__schema_inicial.sql)
     @Column(name = "criado_por", nullable = false, length = 64, updatable = false)
     private String criadoPor;
 
     @Column(name = "criado_em", nullable = false, updatable = false)
-    private LocalDateTime criadoEm;
+    private OffsetDateTime criadoEm;
 
-    public RegistroPresenca(UUID organizacaoId, UUID unidadeId, String usuarioId, 
-                            Double latitude, Double longitude, Double precisaoGps, 
-                            String dispositivoId, String modoRegistro, LocalDateTime capturadoEm,
+    public RegistroPresenca(UUID organizacaoId, UUID unidadeId, String usuarioId,
+                            Double latitude, Double longitude, Double precisaoGps,
+                            String dispositivoId, String modoRegistro, OffsetDateTime capturadoEm,
                             String criadoPor) {
         this.organizacaoId = organizacaoId;
         this.unidadeId = unidadeId;
@@ -105,9 +106,9 @@ public class RegistroPresenca extends EntidadeBase implements PertenceOrganizaca
         this.modoRegistro = modoRegistro;
         this.capturadoEm = capturadoEm;
         this.criadoPor = criadoPor; // Novo campo
-        
-        this.recebidoNoServidorEm = LocalDateTime.now(ZoneOffset.UTC);
-        this.criadoEm = this.recebidoNoServidorEm; 
+
+        this.recebidoNoServidorEm = OffsetDateTime.now(ZoneOffset.UTC);
+        this.criadoEm = this.recebidoNoServidorEm;
         this.statusTecnico = "RECEBIDO";
         this.statusAdministrativo = "PENDENTE";
     }
