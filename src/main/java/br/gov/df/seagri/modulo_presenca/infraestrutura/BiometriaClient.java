@@ -1,23 +1,28 @@
 package br.gov.df.seagri.modulo_presenca.infraestrutura;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.http.ResponseEntity;
-import java.util.Map;
-import java.util.HashMap;
 
 @Component
 @Slf4j
 public class BiometriaClient {
 
     // Instanciamos o cliente HTTP do Spring
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestClient restClient;
 
-    // A URL interna do nosso container no Docker
-    private final String BIOMETRIA_URL = "http://localhost:8000/api/v1/biometria/verify";
+        // Inicializa o RestClient do Spring 3.5 lendo a URL do application.yml
+    public BiometriaClient(@Value("${biometria.url}") String biometriaUrl) {
+        this.restClient = RestClient.builder()
+                .baseUrl(biometriaUrl)
+                .build();
+    }
 
     public Map<String, Object> verificarFace(String fotoCadastroBase64, String fotoCapturadaBase64) {
         try {
@@ -26,9 +31,11 @@ public class BiometriaClient {
             requestBody.put("image_base64_1", fotoCadastroBase64);
             requestBody.put("image_base64_2", fotoCapturadaBase64);
 
-            // Dispara a requisição POST para a IA em Python
-            ResponseEntity<Map> response = restTemplate.postForEntity(BIOMETRIA_URL, requestBody, Map.class);
-            return response.getBody();
+            // Dispara a requisição POST para a IA em Python com tipagem segura
+            return restClient.post()
+                    .body(requestBody)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<Map<String, Object>>() {});
 
         } catch (Exception e) {
             // Em caso de falha no motor Python (timeout, container offline, etc),

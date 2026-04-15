@@ -26,29 +26,29 @@ repositories {
 dependencies {
     // Web (Para criar as APIs REST)
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    
+
     // Segurança e OAuth2/JWT (Para integração com o Keycloak)
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-    
+
     // Validação de DTOs (Jakarta Validation - @Valid, @NotNull)
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    
+
     // JPA e Banco de Dados
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql' // Driver do Postgres
-    
-    // Migrações de Banco de Dados 
+
+    // Migrações de Banco de Dados
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
 
     // Actuator para monitoramento
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    
+
     // Micrometer para métricas avançadas (opcional)
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     implementation 'io.micrometer:micrometer-registry-prometheus' // Para Prometheus
-    
+
     // Ferramentas de Produtividade (Lombok e DevTools)
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -64,6 +64,10 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
+    // Cliente S3 (AWS SDK V2) para comunicação com o SeaweedFS
+    implementation platform('software.amazon.awssdk:bom:2.25.11')
+    implementation 'software.amazon.awssdk:s3'
 }
 
 tasks.named('test') {

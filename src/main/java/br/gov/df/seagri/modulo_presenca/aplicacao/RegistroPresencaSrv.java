@@ -1,7 +1,17 @@
 package br.gov.df.seagri.modulo_presenca.aplicacao;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import br.gov.df.seagri.dominio_central.aplicacao.GeolocalizacaoSrv;
 import br.gov.df.seagri.dominio_central.infraestrutura.ArmazenamentoLocalSrv;
+import br.gov.df.seagri.dominio_central.infraestrutura.S3StorageSrv;
 import br.gov.df.seagri.modulo_organizacao.aplicacao.UnidadeSrv;
 import br.gov.df.seagri.modulo_organizacao.dominio.Unidade;
 import br.gov.df.seagri.modulo_presenca.dominio.RegistroPresenca;
@@ -9,15 +19,6 @@ import br.gov.df.seagri.modulo_presenca.infraestrutura.BiometriaClient;
 import br.gov.df.seagri.modulo_presenca.infraestrutura.RegistroPresencaDAO;
 import br.gov.df.seagri.modulo_presenca.web.dto.RegistroPresencaRequestDTO;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -28,17 +29,20 @@ public class RegistroPresencaSrv {
     private final UnidadeSrv unidadeSrv;
     private final GeolocalizacaoSrv geolocalizacaoSrv;
     private final ArmazenamentoLocalSrv armazenamentoLocalSrv;
+    private final S3StorageSrv s3StorageSrv;
 
     public RegistroPresencaSrv(RegistroPresencaDAO registroPresencaDAO,
                                UnidadeSrv unidadeSrv,
                                GeolocalizacaoSrv geolocalizacaoSrv,
+                               BiometriaClient biometriaClient,
                                ArmazenamentoLocalSrv armazenamentoLocalSrv,
-                               BiometriaClient biometriaClient) {
+                               S3StorageSrv s3StorageSrv) {
         this.registroPresencaDAO = registroPresencaDAO;
         this.unidadeSrv = unidadeSrv;
         this.geolocalizacaoSrv = geolocalizacaoSrv;
-        this.armazenamentoLocalSrv = armazenamentoLocalSrv;
         this.biometriaClient = biometriaClient;
+        this.armazenamentoLocalSrv = armazenamentoLocalSrv;
+        this.s3StorageSrv = s3StorageSrv;
     }
 
     @Transactional
@@ -85,7 +89,14 @@ public class RegistroPresencaSrv {
         }
 
         // 2. Validação de Biometria (O usuário recusou a câmera?)
-        UUID referenciaBiometrica = armazenamentoLocalSrv.salvarFotoBase64(dto.getFotoBase64());
+        UUID referenciaBiometrica = null;
+        if (dto.getFotoBase64() != null) {
+            // referenciaBiometrica = armazenamentoLocalSrv.salvarFotoBase64(dto.getFotoBase64());
+            // log.debug("UUID temporário da foto: {} - armazenamento local", referenciaBiometrica);
+
+            referenciaBiometrica = s3StorageSrv.salvarFotoBase64(dto.getFotoBase64());
+            log.debug("UUID da foto no S3: {} - armazenamento em s3", referenciaBiometrica);
+        }
 
         if (referenciaBiometrica == null) {
             statusAdministrativo = "PENDENTE";
@@ -169,7 +180,12 @@ public class RegistroPresencaSrv {
             throw new RuntimeException("Acesso negado à evidência biométrica");
         }
 
-        return armazenamentoLocalSrv.recuperarFoto(presenca.getReferenciaBiometrica());
+        byte[] result = null;
+        // result = armazenamentoLocalSrv.recuperarFoto(presenca.getReferenciaBiometrica());
+
+        result = s3StorageSrv.recuperarFoto(presenca.getReferenciaBiometrica());
+
+        return result;
     }
 
 }

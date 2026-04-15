@@ -38,6 +38,7 @@ public class ArmazenamentoLocalSrv {
         }
     }
 
+    // Método para salvar a imagem física e retornar um UUID de referência
     public UUID salvarFotoBase64(String fotoBase64) {
         if (fotoBase64 == null || fotoBase64.isEmpty()) {
             log.debug("fotoBase64 vazio ou não informado");
