@@ -14,7 +14,7 @@ spring:
 
   # Configuração de conexão com o banco de dados isolado do backend
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${BACKEND_BD:backend}
+    url: jdbc:postgresql://${POSTGRES_URL:postgres}:5432/${BACKEND_BD:backend}
     username: ${BACKEND_USU:backend}
     password: ${BACKEND_SEN:backend}
     driver-class-name: org.postgresql.Driver
@@ -208,8 +208,8 @@ storage:
   s3:
     endpoint: ${S3_ENDPOINT:http://localhost:8333}
     bucket-biometria: ${S3_BUCKET:seagri-fotos}
-    access-key: ${S3_ACCESS_KEY:dev-access-key}
-    secret-key: ${S3_SECRET_KEY:dev-secret-key}
+    access-key: ${S3_ADMIN_ACCESS_KEY:dev-access-key}
+    secret-key: ${S3_ADMIN_SECRET_KEY:dev-secret-key}
 
 biometria:
   url: ${BIOMETRIA_URL:http://localhost:8000/api/v1/biometria/verify}

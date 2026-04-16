@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
@@ -42,12 +43,18 @@ public class S3StorageSrv {
 
     @PostConstruct
     public void init() {
-        // Inicializa o cliente S3 apontando para o seu SeaweedFS local
+        // Validação de segurança para garantir que as chaves foram injetadas
+        if (accessKey == null || secretKey == null || accessKey.isBlank() || secretKey.isBlank()) {
+            throw new IllegalStateException("Credenciais do S3 não configuradas corretamente no ambiente.");
+        }
+
+        // Inicializa o cliente S3 apontando para o seu SeaweedFS local com credenciais estáticas
         this.s3Client = S3Client.builder()
                 .endpointOverride(URI.create(endpoint))
-                .region(Region.US_EAST_1)
-                .credentialsProvider(AnonymousCredentialsProvider.create())
-                .forcePathStyle(true)
+                .region(Region.US_EAST_1) // Região fictícia obrigatória para o SDK
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(accessKey, secretKey)))
+                .forcePathStyle(true) // Obrigatório para SeaweedFS e MinIO
                 .build();
 
         garantirBucketExiste();
