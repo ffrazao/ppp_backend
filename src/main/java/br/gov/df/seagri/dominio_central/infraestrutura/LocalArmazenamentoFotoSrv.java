@@ -1,9 +1,5 @@
 package br.gov.df.seagri.dominio_central.infraestrutura;
 
-import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
-
-import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,34 +7,36 @@ import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.UUID;
 
-import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class ArmazenamentoLocalSrv {
+public class LocalArmazenamentoFotoSrv implements ArmazenamentoFotoSrv {
 
     @Value("${armazenamento.diretorio.fotos:#{systemProperties['user.home'] + '/seagri_fotos'}}")
     private String diretorioRaiz;
 
     private Path getDiretorioRaiz() {
-        return this.diretorioRaiz == null ? null : Paths.get(this.diretorioRaiz);
-    }
+        Path result = this.diretorioRaiz == null ? null : Paths.get(this.diretorioRaiz);
 
-    @PostConstruct
-    public void init() {
-        log.debug(diretorioRaiz);
         try {
-            log.debug("diretorioRaiz: [{}]", diretorioRaiz);
-            if (!Files.exists(getDiretorioRaiz())) {
+            if (!Files.exists(result)) {
                 log.trace("Criando o diretório raiz das fotos em {}", diretorioRaiz);
-                Files.createDirectories(getDiretorioRaiz());
+                Files.createDirectories(result);
             }
         } catch (IOException e) {
             log.error("❌ Erro fatal ao criar diretório de biometria: {}", e.getMessage());
+            throw new RuntimeException(e);
         }
+
+        return result;
     }
 
     // Método para salvar a imagem física e retornar um UUID de referência
+    @Override
     public UUID salvarFotoBase64(String fotoBase64) {
         if (fotoBase64 == null || fotoBase64.isEmpty()) {
             log.debug("fotoBase64 vazio ou não informado");
@@ -84,6 +82,7 @@ public class ArmazenamentoLocalSrv {
     }
 
     // Método para ler a imagem física e devolvê-la para a web
+    @Override
     public byte[] recuperarFoto(UUID referenciaImagem) {
         if (referenciaImagem == null) {
             log.debug("ID de Referência da imagem não informado");

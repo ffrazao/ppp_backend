@@ -10,8 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.gov.df.seagri.dominio_central.aplicacao.GeolocalizacaoSrv;
-import br.gov.df.seagri.dominio_central.infraestrutura.ArmazenamentoLocalSrv;
-import br.gov.df.seagri.dominio_central.infraestrutura.S3StorageSrv;
+import br.gov.df.seagri.dominio_central.infraestrutura.S3StorageArmazenamentoFotoSrv;
 import br.gov.df.seagri.modulo_organizacao.aplicacao.UnidadeSrv;
 import br.gov.df.seagri.modulo_organizacao.dominio.Unidade;
 import br.gov.df.seagri.modulo_presenca.dominio.RegistroPresenca;
@@ -28,20 +27,20 @@ public class RegistroPresencaSrv {
     private final RegistroPresencaDAO registroPresencaDAO;
     private final UnidadeSrv unidadeSrv;
     private final GeolocalizacaoSrv geolocalizacaoSrv;
-    private final ArmazenamentoLocalSrv armazenamentoLocalSrv;
-    private final S3StorageSrv s3StorageSrv;
+    //private final LocalArmazenamentoFotoSrv armazenamentoLocalSrv;
+    private final S3StorageArmazenamentoFotoSrv s3StorageSrv;
 
     public RegistroPresencaSrv(RegistroPresencaDAO registroPresencaDAO,
                                UnidadeSrv unidadeSrv,
                                GeolocalizacaoSrv geolocalizacaoSrv,
                                BiometriaClient biometriaClient,
-                               ArmazenamentoLocalSrv armazenamentoLocalSrv,
-                               S3StorageSrv s3StorageSrv) {
+                               //LocalArmazenamentoFotoSrv armazenamentoLocalSrv,
+                               S3StorageArmazenamentoFotoSrv s3StorageSrv) {
         this.registroPresencaDAO = registroPresencaDAO;
         this.unidadeSrv = unidadeSrv;
         this.geolocalizacaoSrv = geolocalizacaoSrv;
         this.biometriaClient = biometriaClient;
-        this.armazenamentoLocalSrv = armazenamentoLocalSrv;
+        //this.armazenamentoLocalSrv = armazenamentoLocalSrv;
         this.s3StorageSrv = s3StorageSrv;
     }
 

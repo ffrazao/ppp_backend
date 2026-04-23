@@ -25,7 +25,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
 @Slf4j
-public class S3StorageSrv {
+public class S3StorageArmazenamentoFotoSrv implements ArmazenamentoFotoSrv{
 
     @Value("${storage.s3.endpoint}")
     private String endpoint;
@@ -70,6 +70,7 @@ public class S3StorageSrv {
     }
 
     // Método para salvar a imagem física e retornar um UUID de referência
+    @Override
     public UUID salvarFotoBase64(String fotoBase64) {
         if (fotoBase64 == null || fotoBase64.isBlank()) {
             log.debug("fotoBase64 vazio ou não informado");
@@ -111,6 +112,7 @@ public class S3StorageSrv {
     }
 
     // Método para ler a imagem física e devolvê-la para a web
+    @Override
     public byte[] recuperarFoto(UUID referenciaImagem) {
         if (referenciaImagem == null) {
             log.debug("ID de Referência da imagem não informado");
