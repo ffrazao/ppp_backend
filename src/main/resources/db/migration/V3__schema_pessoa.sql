@@ -75,7 +75,7 @@ CREATE TABLE pessoa (
     data_termino DATE,
 
     criado_por BIGINT NOT NULL,
-    criacao_em TIMESTAMPTZ NOT NULL DEFAULT now(),
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT now(),
     atualizado_por BIGINT NOT NULL,
     atualizado_em TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -91,7 +91,7 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF TG_OP = 'INSERT' THEN
         NEW.atualizado_por := NEW.criado_por;
-        NEW.atualizado_em := NEW.criacao_em;
+        NEW.atualizado_em := NEW.criado_em;
     END IF;
     RETURN NEW;
 END;
@@ -158,6 +158,8 @@ CREATE TABLE pessoa_juridica (
     id BIGINT PRIMARY KEY,
 
     cnpj VARCHAR(14),
+    inscricao_estadual TEXT,
+    inscricao_municipal TEXT,
 
     razao_social TEXT NOT NULL,
     sigla TEXT,
@@ -179,6 +181,12 @@ CREATE TABLE pessoa_juridica (
 );
 
 CREATE UNIQUE INDEX uq_pj_cnpj ON pessoa_juridica(cnpj) WHERE cnpj IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_pj_inscricao_estadual
+    ON pessoa.pessoa_juridica(inscricao_estadual);
+
+CREATE INDEX IF NOT EXISTS idx_pj_inscricao_municipal
+    ON pessoa.pessoa_juridica(inscricao_municipal);
 
 -- =========================================
 -- PESSOA GRUPO
@@ -408,7 +416,7 @@ CREATE TABLE pessoa_grupo_membros (
 );
 
 CREATE UNIQUE INDEX uq_pg_membro_ativo
-ON pessoa_grupo_membros(id_grupo, id_pessoa)
+ON pessoa.pessoa_grupo_membros(id_pessoa, id_grupo, papel)
 WHERE data_saida IS NULL;
 
 CREATE TABLE pessoa_grupo_hierarquia (

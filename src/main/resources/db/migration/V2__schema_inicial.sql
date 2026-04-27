@@ -1,4 +1,10 @@
--- V1__schema_inicial.sql
+-- =========================================
+-- SCHEMA
+-- =========================================
+CREATE SCHEMA IF NOT EXISTS folha_ponto;
+SET search_path TO folha_ponto;
+
+-- V2__schema_inicial.sql
 -- Script de Criação Inicial do MVP - SEAGRI (PostgreSQL)
 -- Arquitetura: Multi-Tenant, ReBAC (Grafos), Imutabilidade e Auditoria Plena (em Português)
 

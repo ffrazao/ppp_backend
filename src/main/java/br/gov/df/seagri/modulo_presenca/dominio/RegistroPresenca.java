@@ -19,10 +19,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "registro_presenca")
+@Table(schema = "folha_ponto", name = "registro_presenca")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RegistroPresenca extends EntidadeBase implements PertenceOrganizacao, RastreavelCriacao {
+public class RegistroPresenca extends EntidadeBase<UUID> implements PertenceOrganizacao, RastreavelCriacao {
 
     @Column(name = "organizacao_id", nullable = false, updatable = false)
     private UUID organizacaoId;
@@ -115,7 +116,7 @@ public class RegistroPresenca extends EntidadeBase implements PertenceOrganizaca
 
     @Override
     public UUID obterOrganizacaoId() {
-        return this.organizacaoId;
+        return (UUID) this.organizacaoId;
     }
 
     // Método que garante a imutabilidade ao vincular a foto do disco ao banco de dados

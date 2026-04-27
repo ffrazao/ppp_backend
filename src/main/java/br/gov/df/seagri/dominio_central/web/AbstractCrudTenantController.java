@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public abstract class AbstractCrudTenantController<T extends EntidadeBase, REQ, RES, ID> extends AbstractApiController {
+public abstract class AbstractCrudTenantController<T extends EntidadeBase<ID>, REQ, RES, ID> extends AbstractApiController {
 
     // A sua sugestão aplicada perfeitamente: o estado reside no pai!
     protected final CrudTenantSrv<T, ID> servico;
@@ -28,7 +28,7 @@ public abstract class AbstractCrudTenantController<T extends EntidadeBase, REQ, 
     public ResponseEntity<ApiResponse<RES>> criar(@PathVariable UUID organizacaoId, @Valid @RequestBody REQ request) {
         T novaEntidade = mapper.paraEntidade(request);
         vincularContexto(novaEntidade, organizacaoId); // Injeta Tenant e Usuário
-        
+
         T salva = servico.salvar(organizacaoId, novaEntidade);
         return created(mapper.paraDto(salva));
     }
@@ -38,7 +38,7 @@ public abstract class AbstractCrudTenantController<T extends EntidadeBase, REQ, 
         T entidadeExistente = servico.buscarPorId(organizacaoId, id);
         mapper.atualizarEntidade(entidadeExistente, request);
         vincularContexto(entidadeExistente, organizacaoId); // Garante que não quebre a integridade
-        
+
         T atualizada = servico.salvar(organizacaoId, entidadeExistente);
         return ok(mapper.paraDto(atualizada));
     }

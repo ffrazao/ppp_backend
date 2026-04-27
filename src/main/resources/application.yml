@@ -46,15 +46,27 @@ spring:
         order_updates: true
     show-sql: false # Mostra as consultas no console durante o dev
     properties:
-      hibernate:
-        "[format_sql]": true
-        "[default_schema]": public # Explícito é melhor que implícito
-        connection:
-          characterEncoding: utf-8
-          useUnicode: true
-        jdbc:
-          lob:
-            "[non_contextual_creation]": true # Evita warning no PostgreSQL
+      org:
+        hibernate:
+          "[format_sql]": true
+          "[default_schema]": public # Explícito é melhor que implícito
+          connection:
+            characterEncoding: utf-8
+            useUnicode: true
+          jdbc:
+            lob:
+              "[non_contextual_creation]": true # Evita warning no PostgreSQL
+          envers:
+            audit_table_suffix: _aud
+            revision_field_name: rev
+            revision_type_field_name: revtype
+            store_data_at_delete: true
+
+            audit_strategy: org.hibernate.envers.strategy.ValidityAuditStrategy
+            audit_strategy_validity_end_rev_field_name: rev_end
+            audit_strategy_validity_store_revend_timestamp: true
+            
+            default_schema: auditoria
 
   # Configuração de Segurança e Integração com o Keycloak (Resource Server)
   security:

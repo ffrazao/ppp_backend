@@ -2,6 +2,7 @@ package br.gov.df.seagri.modulo_organizacao.dominio;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.UUID;
 
 import br.gov.df.seagri.dominio_central.dominio.AuditoriaCompleta;
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
@@ -17,10 +18,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "alocacao_unidade")
+@Table(schema = "folha_ponto", name = "alocacao_unidade")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AlocacaoUnidade extends EntidadeBase implements AuditoriaCompleta {
+public class AlocacaoUnidade extends EntidadeBase<UUID> implements AuditoriaCompleta {
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

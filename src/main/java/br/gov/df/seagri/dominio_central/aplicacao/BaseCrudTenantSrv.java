@@ -1,17 +1,18 @@
 package br.gov.df.seagri.dominio_central.aplicacao;
 
-import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
-import br.gov.df.seagri.dominio_central.dominio.PertenceOrganizacao;
-import br.gov.df.seagri.dominio_central.infraestrutura.BaseDAO;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
+import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
+import br.gov.df.seagri.dominio_central.dominio.PertenceOrganizacao;
+import br.gov.df.seagri.dominio_central.infraestrutura.BaseDAO;
 
-public abstract class BaseCrudTenantSrv<T extends EntidadeBase & PertenceOrganizacao, ID> implements CrudTenantSrv<T, ID> {
+public abstract class BaseCrudTenantSrv<T extends EntidadeBase<ID> & PertenceOrganizacao, ID> implements CrudTenantSrv<T, ID> {
 
     protected final BaseDAO<T, ID> dao;
     protected final ValidadorTenant validadorTenant;
@@ -28,6 +29,9 @@ public abstract class BaseCrudTenantSrv<T extends EntidadeBase & PertenceOrganiz
     @Override
     @Transactional
     public T salvar(UUID organizacaoId, T entidade) {
+        if (entidade == null) {
+            throw new IllegalArgumentException("Entidade não pode ser nula");
+        }
         validadorTenant.validarPertencimento(entidade, organizacaoId);
         return dao.save(entidade);
     }
@@ -43,6 +47,9 @@ public abstract class BaseCrudTenantSrv<T extends EntidadeBase & PertenceOrganiz
     @Transactional
     public void excluir(UUID organizacaoId, ID id) {
         T entidade = buscarPorId(organizacaoId, id);
+        if (entidade == null) {
+            throw new IllegalArgumentException("Registro não encontrado: " + id);
+        }
         dao.delete(entidade);
     }
 
@@ -53,6 +60,9 @@ public abstract class BaseCrudTenantSrv<T extends EntidadeBase & PertenceOrganiz
 
     @Override
     public Page<T> buscarTudo(UUID organizacaoId, Pageable pageable) {
+        if (pageable == null) {
+            throw new IllegalArgumentException("Faltou informar a paginação");
+        }
         return dao.findAll(filtroTenant(organizacaoId), pageable);
     }
 
@@ -63,6 +73,9 @@ public abstract class BaseCrudTenantSrv<T extends EntidadeBase & PertenceOrganiz
 
     @Override
     public Page<T> buscarTudoComFiltro(UUID organizacaoId, Specification<T> filtro, Pageable pageable) {
+        if (pageable == null) {
+            throw new IllegalArgumentException("Faltou informar a paginação");
+        }
         return dao.findAll(filtroTenant(organizacaoId).and(filtro), pageable);
     }
 }

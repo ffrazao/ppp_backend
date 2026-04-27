@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-public abstract class BaseCrudSrv<T extends EntidadeBase, ID> implements CrudSrv<T, ID> {
+public abstract class BaseCrudSrv<T extends EntidadeBase<ID>, ID> implements CrudSrv<T, ID> {
 
     protected final BaseDAO<T, ID> dao;
 
@@ -19,26 +19,49 @@ public abstract class BaseCrudSrv<T extends EntidadeBase, ID> implements CrudSrv
 
     @Override
     @Transactional
-    public T salvar(T entidade) { return dao.save(entidade); }
+    public T salvar(T entidade) {
+        if (entidade == null) {
+            throw new IllegalArgumentException("Entidade não pode ser nula");
+        }
+        return dao.save(entidade);
+    }
 
     @Override
     public T buscarPorId(ID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID não pode ser nulo");
+        }
         return dao.findById(id).orElseThrow(() -> new IllegalArgumentException("Registro não encontrado: " + id));
     }
 
     @Override
     @Transactional
-    public void excluir(ID id) { dao.deleteById(id); }
+    public void excluir(ID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID não pode ser nulo");
+        }
+        dao.deleteById(id);
+    }
 
     @Override
     public List<T> buscarTudo() { return dao.findAll(); }
 
     @Override
-    public Page<T> buscarTudo(Pageable pageable) { return dao.findAll(pageable); }
+    public Page<T> buscarTudo(Pageable pageable) {
+        if (pageable == null) {
+            throw new IllegalArgumentException("Faltou informar a paginação");
+        }
+        return dao.findAll(pageable);
+    }
 
     @Override
     public List<T> buscarTudoComFiltro(Specification<T> filtro) { return dao.findAll(filtro); }
 
     @Override
-    public Page<T> buscarTudoComFiltro(Specification<T> filtro, Pageable pageable) { return dao.findAll(filtro, pageable); }
+    public Page<T> buscarTudoComFiltro(Specification<T> filtro, Pageable pageable) {
+        if (pageable == null) {
+            throw new IllegalArgumentException("Faltou informar a paginação");
+        }
+        return dao.findAll(filtro, pageable);
+    }
 }

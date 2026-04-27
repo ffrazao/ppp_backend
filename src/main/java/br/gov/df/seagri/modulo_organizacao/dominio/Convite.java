@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "convite")
+@Table(schema = "folha_ponto", name = "convite")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Convite extends EntidadeBase {

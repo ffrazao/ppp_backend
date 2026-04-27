@@ -20,12 +20,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "vinculo_usuario", uniqueConstraints = {
+@Table(schema = "folha_ponto", name = "vinculo_usuario", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"usuario_id", "organizacao_id"})
 })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class VinculoUsuario extends EntidadeBase implements AuditoriaCompleta, PertenceOrganizacao {
+public class VinculoUsuario extends EntidadeBase<UUID> implements AuditoriaCompleta, PertenceOrganizacao {
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -81,6 +81,6 @@ public class VinculoUsuario extends EntidadeBase implements AuditoriaCompleta, P
 
     @Override
     public UUID obterOrganizacaoId() {
-        return this.organizacao.getId();
+        return (UUID) this.organizacao.getId();
     }
 }

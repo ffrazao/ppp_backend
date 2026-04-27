@@ -37,6 +37,13 @@ dependencies {
     // JPA e Banco de Dados
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql' // Driver do Postgres
+    implementation 'org.hibernate.orm:hibernate-envers'
+    implementation 'org.springframework.data:spring-data-envers'
+    // segundo Envers a importação a seguir é para estruturas complexas, vou desabilitar
+    // por enquanto, depois estudar e ver se tem algum proveito
+    // implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
+    implementation 'org.hibernate.orm:hibernate-spatial'
+    implementation 'org.locationtech.jts:jts-core'
 
     // Migrações de Banco de Dados
     implementation 'org.flywaydb:flyway-core'

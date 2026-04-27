@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * Utiliza MapStruct para conversão automática.
  */
 // Adicionamos o "extends EntidadeBase" logo após o T
-public abstract class AbstractCrudController<T extends EntidadeBase, REQ, RES, ID> extends AbstractApiController {
+public abstract class AbstractCrudController<T extends EntidadeBase<ID>, REQ, RES, ID> extends AbstractApiController {
 
     protected final BaseCrudSrv<T, ID> servico;
     protected final BaseMapper<T, REQ, RES> mapper;
@@ -39,7 +39,7 @@ public abstract class AbstractCrudController<T extends EntidadeBase, REQ, RES, I
     public ResponseEntity<ApiResponse<RES>> atualizar(@PathVariable ID id, @Valid @RequestBody REQ request) {
         T entidadeExistente = servico.buscarPorId(id);
         mapper.atualizarEntidade(entidadeExistente, request);
-        vincularContexto(entidadeExistente); 
+        vincularContexto(entidadeExistente);
         T atualizada = servico.salvar(entidadeExistente);
         return ok(mapper.paraDto(atualizada));
     }

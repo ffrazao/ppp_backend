@@ -22,10 +22,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "unidade")
+@Table(schema = "folha_ponto", name = "unidade")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Unidade extends EntidadeBase implements AuditoriaCompleta, PertenceOrganizacao {
+public class Unidade extends EntidadeBase<UUID> implements AuditoriaCompleta, PertenceOrganizacao {
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -83,6 +83,6 @@ public class Unidade extends EntidadeBase implements AuditoriaCompleta, Pertence
 
     @Override
     public UUID obterOrganizacaoId() {
-        return this.organizacao.getId();
+        return (UUID) this.organizacao.getId();
     }
 }
