@@ -3,15 +3,17 @@ package br.gov.df.seagri.modulo_organizacao.dominio;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.UuidGenerator;
+
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -28,9 +30,17 @@ import lombok.ToString;
 public class Convite extends EntidadeBase<UUID> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(updatable = false, nullable = false, columnDefinition = "UUID")
+    @GeneratedValue
+    @UuidGenerator
     private UUID id;
+
+    @PrePersist
+    public void gerarIdSeNecessario() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+    }
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "organizacao_id", nullable = false, updatable = false)
@@ -70,7 +80,8 @@ public class Convite extends EntidadeBase<UUID> {
     private OffsetDateTime atualizadoEm;
 
     // Construtor atualizado
-    public Convite(Organizacao organizacao, Unidade unidade, String codigo, String papelEsperado, OffsetDateTime dataExpiracao, String criadoPor) {
+    public Convite(Organizacao organizacao, Unidade unidade, String codigo, String papelEsperado,
+            OffsetDateTime dataExpiracao, String criadoPor) {
         this.organizacao = organizacao;
         this.unidade = unidade;
         this.codigo = codigo;

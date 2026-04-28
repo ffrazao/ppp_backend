@@ -1,6 +1,7 @@
 package br.gov.df.seagri.modulo_auditoria.dominio;
 
 import org.hibernate.envers.RevisionListener;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public class RevisionListenerCustom implements RevisionListener {
 
@@ -18,8 +19,9 @@ public class RevisionListenerCustom implements RevisionListener {
         rev.setIp("0.0.0.0");
     }
 
-    private Long getUsuarioLogado() {
-        // TODO: integrar com Spring Security
-        return null;
+    private String getUsuarioLogado() {
+        return SecurityContextHolder.getContext().getAuthentication() != null
+                ? SecurityContextHolder.getContext().getAuthentication().getName()
+                : "sistema";
     }
 }

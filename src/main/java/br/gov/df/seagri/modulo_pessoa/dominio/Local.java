@@ -47,6 +47,7 @@ public class Local extends EntidadeBase<Long> {
     private Local pai;
 
     @OneToMany(mappedBy = "pai")
+    @OrderBy("nome ASC")
     private List<Local> filhos;
 
     // =========================

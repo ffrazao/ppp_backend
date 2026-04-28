@@ -65,8 +65,9 @@ spring:
             audit_strategy: org.hibernate.envers.strategy.ValidityAuditStrategy
             audit_strategy_validity_end_rev_field_name: rev_end
             audit_strategy_validity_store_revend_timestamp: true
-            
-            default_schema: auditoria
+            audit_strategy_validity_revend_timestamp_field_name: revend_tstmp
+
+            # default_schema: auditoria
 
   # Configuração de Segurança e Integração com o Keycloak (Resource Server)
   security:

@@ -5,6 +5,7 @@ import java.time.ZoneOffset;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
@@ -13,8 +14,8 @@ import br.gov.df.seagri.dominio_central.dominio.RastreavelCriacao;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,9 +32,17 @@ import lombok.ToString;
 public class RegistroPresenca extends EntidadeBase<UUID> implements PertenceOrganizacao, RastreavelCriacao {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(updatable = false, nullable = false, columnDefinition = "UUID")
+    @GeneratedValue
+    @UuidGenerator
     private UUID id;
+
+    @PrePersist
+    public void gerarIdSeNecessario() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+    }
 
     @Column(name = "organizacao_id", nullable = false, updatable = false)
     private UUID organizacaoId;
@@ -104,9 +113,9 @@ public class RegistroPresenca extends EntidadeBase<UUID> implements PertenceOrga
     private OffsetDateTime criadoEm;
 
     public RegistroPresenca(UUID organizacaoId, UUID unidadeId, String usuarioId,
-                            Double latitude, Double longitude, Double precisaoGps,
-                            String dispositivoId, String modoRegistro, OffsetDateTime capturadoEm,
-                            String criadoPor) {
+            Double latitude, Double longitude, Double precisaoGps,
+            String dispositivoId, String modoRegistro, OffsetDateTime capturadoEm,
+            String criadoPor) {
         this.organizacaoId = organizacaoId;
         this.unidadeId = unidadeId;
         this.usuarioId = usuarioId;
@@ -129,7 +138,8 @@ public class RegistroPresenca extends EntidadeBase<UUID> implements PertenceOrga
         return (UUID) this.organizacaoId;
     }
 
-    // Método que garante a imutabilidade ao vincular a foto do disco ao banco de dados
+    // Método que garante a imutabilidade ao vincular a foto do disco ao banco de
+    // dados
     public void registrarEvidenciaBiometrica(java.util.UUID referencia, Double pontuacao, Boolean valida) {
         this.referenciaBiometrica = referencia;
         this.pontuacaoBiometrica = pontuacao;

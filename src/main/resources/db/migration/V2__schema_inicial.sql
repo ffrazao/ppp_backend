@@ -10,7 +10,7 @@ SET search_path TO folha_ponto;
 
 -- 1. organizacao
 CREATE TABLE organizacao (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome VARCHAR(255) NOT NULL,
     status VARCHAR(32) NOT NULL DEFAULT 'ATIVO',
     criado_por VARCHAR(64) NOT NULL,
@@ -23,7 +23,7 @@ CREATE INDEX idx_org_criado_por ON organizacao(criado_por);
 -- 2. unidade
 -- Nota: Sem id_pai. A hierarquia é definida via tabela 'relacionamento' (Grafos) [6].
 CREATE TABLE unidade (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organizacao_id UUID NOT NULL,
     nome VARCHAR(255) NOT NULL,
     tipo_geometria VARCHAR(16) NOT NULL, -- RAIO | POLIGONO
@@ -41,7 +41,7 @@ CREATE INDEX idx_unidade_org ON unidade(organizacao_id);
 
 -- 3. vinculo_usuario
 CREATE TABLE vinculo_usuario (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organizacao_id UUID NOT NULL,
     usuario_id VARCHAR(64) NOT NULL, -- Keycloak sub
     papel VARCHAR(32) NOT NULL,
@@ -57,6 +57,31 @@ CREATE TABLE vinculo_usuario (
 -- Índice único garante que não usemos chave primária composta
 CREATE UNIQUE INDEX uq_vinculo_usuario_org ON vinculo_usuario(usuario_id, organizacao_id);
 
+-- auditoria
+CREATE TABLE folha_ponto.vinculo_usuario_aud (
+    id UUID NOT NULL,
+    rev BIGINT NOT NULL,
+    revtype SMALLINT,
+
+    organizacao_id UUID,
+    usuario_id VARCHAR(64),
+    papel VARCHAR(32),
+    status VARCHAR(32),
+    data_inicio TIMESTAMP,
+    data_fim TIMESTAMP,
+    criado_por VARCHAR(64),
+    criado_em TIMESTAMP,
+    atualizado_por VARCHAR(64),
+    atualizado_em TIMESTAMP,
+
+    rev_end BIGINT,
+    revend_tstmp TIMESTAMP,
+
+    PRIMARY KEY (id, rev),
+    CONSTRAINT fk_vinculo_usuario_aud_rev FOREIGN KEY (rev)
+        REFERENCES auditoria.revinfo(id)
+);
+
 -- tabela que gere a lotação das pessoas
 CREATE TABLE alocacao_unidade (
     id uuid NOT NULL,
@@ -65,39 +90,67 @@ CREATE TABLE alocacao_unidade (
     papel_operacional varchar(32) NOT NULL,
     status varchar(32) DEFAULT 'ATIVO'::character varying NOT NULL,
     data_inicio timestamp NOT NULL,
-    data_fim timestamp NULL, 
+    data_fim timestamp NULL,
     criado_por varchar(64) NOT NULL,
     criado_em timestamp NOT NULL,
     atualizado_por varchar(64) NULL,
     atualizado_em timestamp NULL,
-    
+
     CONSTRAINT alocacao_unidade_pkey PRIMARY KEY (id),
     CONSTRAINT fk_alocacao_vinculo FOREIGN KEY (vinculo_usuario_id) REFERENCES vinculo_usuario(id) ON DELETE CASCADE,
     CONSTRAINT fk_alocacao_unidade FOREIGN KEY (unidade_id) REFERENCES unidade(id) ON DELETE CASCADE,
-    
+
     -- NOVA REGRA APLICADA: Protegendo o domínio do papel operacional no banco (RFC-0010)
     CONSTRAINT chk_alocacao_papel CHECK (papel_operacional IN (
-        'PARTICIPANTE', 
-        'MANAGER', 
-        'GESTOR_TITULAR', 
-        'GESTOR_SUBSTITUTO', 
+        'PARTICIPANTE',
+        'MANAGER',
+        'GESTOR_TITULAR',
+        'GESTOR_SUBSTITUTO',
         'ASSISTENTE',
         'OWNER'
     )),
-    
+
     -- NOVA REGRA APLICADA: Protegendo os status válidos
     CONSTRAINT chk_alocacao_status CHECK (status IN (
-        'ATIVO', 
-        'SUSPENSO', 
+        'ATIVO',
+        'SUSPENSO',
         'ENCERRADO'
     ))
 );
 
 CREATE INDEX idx_alocacao_vinculo ON alocacao_unidade(vinculo_usuario_id, status);
 
+-- auditoria
+CREATE TABLE folha_ponto.alocacao_unidade_aud (
+    id UUID NOT NULL,
+    rev BIGINT NOT NULL,
+    revtype SMALLINT,
+
+    vinculo_usuario_id UUID,
+    unidade_id UUID,
+    papel_operacional VARCHAR(32),
+    status VARCHAR(32),
+    data_inicio TIMESTAMP,
+    data_fim TIMESTAMP,
+    criado_por VARCHAR(64),
+    criado_em TIMESTAMP,
+    atualizado_por VARCHAR(64),
+    atualizado_em TIMESTAMP,
+
+    -- Controle de validade (ValidityAuditStrategy)
+    rev_end BIGINT,
+    revend_tstmp TIMESTAMP,
+
+    PRIMARY KEY (id, rev),
+
+    CONSTRAINT fk_alocacao_unidade_aud_rev
+        FOREIGN KEY (rev)
+        REFERENCES auditoria.revinfo(id)
+);
+
 -- 4. convite
 CREATE TABLE convite (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organizacao_id UUID NOT NULL,
     unidade_id uuid NULL,
     papel_esperado varchar(32) DEFAULT 'PARTICIPANTE' NOT NULL,
@@ -122,7 +175,7 @@ ALTER TABLE convite ADD CONSTRAINT chk_convite_papel CHECK (papel_esperado IN (
 
 -- 5. perfil_biometrico
 CREATE TABLE perfil_biometrico (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     usuario_id VARCHAR(64) NOT NULL,
     modelo_biometrico BYTEA NOT NULL,
     versao_modelo VARCHAR(32) NOT NULL,
@@ -135,7 +188,7 @@ CREATE TABLE perfil_biometrico (
 -- 6. registro_presenca (ESTRITAMENTE IMUTÁVEL)
 -- Todas as colunas antifraude e índices da arquitetura base mantidos [2-5, 7].
 CREATE TABLE registro_presenca (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organizacao_id UUID NOT NULL,
     unidade_id UUID NOT NULL,
     usuario_id VARCHAR(64) NOT NULL,
@@ -165,7 +218,7 @@ CREATE INDEX idx_presenca_unidade_tempo ON registro_presenca(unidade_id, recebid
 
 -- 7. dispositivo
 CREATE TABLE dispositivo (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     identificador_dispositivo VARCHAR(128) NOT NULL,
     usuario_id VARCHAR(64),
     nivel_confianca VARCHAR(16) NOT NULL,
@@ -179,21 +232,21 @@ CREATE TABLE dispositivo (
 
 -- 8. log_auditoria (ESTRITAMENTE IMUTÁVEL)
 CREATE TABLE log_auditoria (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organizacao_id UUID,
     acao VARCHAR(128) NOT NULL,
     tipo_entidade VARCHAR(64),
     entidade_id UUID,
     decisao VARCHAR(16),
     metadados JSONB,
-    criado_por VARCHAR(64) NOT NULL, 
+    criado_por VARCHAR(64) NOT NULL,
     criado_em TIMESTAMP NOT NULL
 );
 CREATE INDEX idx_auditoria_org_tempo ON log_auditoria(organizacao_id, criado_em);
 
 -- 9. consentimento
 CREATE TABLE consentimento (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organizacao_id UUID NOT NULL,
     usuario_id VARCHAR(64) NOT NULL,
     tipo_consentimento VARCHAR(64) NOT NULL,
@@ -207,7 +260,7 @@ CREATE TABLE consentimento (
 
 -- 10. relacionamento (O Coração do Grafo ReBAC) [6, 8]
 CREATE TABLE relacionamento (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organizacao_id UUID NOT NULL,
     sujeito_id VARCHAR(64) NOT NULL, -- Ex: ID do Gabinete ou ID do Usuário
     objeto_id VARCHAR(64) NOT NULL, -- Ex: ID do Conselho ou da Unidade
@@ -225,7 +278,7 @@ CREATE INDEX idx_relacionamento_org_objeto ON relacionamento(organizacao_id, obj
 
 -- 11. excecao_permissao_usuario
 CREATE TABLE excecao_permissao_usuario (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organizacao_id UUID NOT NULL,
     usuario_id VARCHAR(64) NOT NULL,
     recurso VARCHAR(128) NOT NULL,

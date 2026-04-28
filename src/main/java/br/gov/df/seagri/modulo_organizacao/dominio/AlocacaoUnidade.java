@@ -4,16 +4,21 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.envers.Audited;
+
 import br.gov.df.seagri.dominio_central.dominio.AuditoriaCompleta;
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
+import br.gov.df.seagri.modulo_auditoria.dominio.AuditoriaListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,12 +32,22 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(callSuper = true)
+@Audited
+@EntityListeners(AuditoriaListener.class)
 public class AlocacaoUnidade extends EntidadeBase<UUID> implements AuditoriaCompleta {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(updatable = false, nullable = false, columnDefinition = "UUID")
+    @GeneratedValue
+    @UuidGenerator
     private UUID id;
+
+    @PrePersist
+    public void gerarIdSeNecessario() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+    }
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -88,9 +103,11 @@ public class AlocacaoUnidade extends EntidadeBase<UUID> implements AuditoriaComp
 
     // Método auxiliar para verificar se a alocação está vigente hoje
     public boolean isVigente() {
-        if (!"ATIVO".equals(this.status)) return false;
+        if (!"ATIVO".equals(this.status))
+            return false;
         OffsetDateTime agora = OffsetDateTime.now(ZoneOffset.UTC);
-        if (agora.isBefore(this.dataInicio)) return false;
+        if (agora.isBefore(this.dataInicio))
+            return false;
         return this.dataFim == null || agora.isBefore(this.dataFim);
     }
 

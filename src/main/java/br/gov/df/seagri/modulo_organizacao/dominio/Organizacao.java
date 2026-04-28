@@ -4,13 +4,18 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.envers.Audited;
+
 import br.gov.df.seagri.dominio_central.dominio.AuditoriaCompleta;
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
+import br.gov.df.seagri.modulo_auditoria.dominio.AuditoriaListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,12 +29,22 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(callSuper = true)
+@Audited
+@EntityListeners(AuditoriaListener.class)
 public class Organizacao extends EntidadeBase<UUID> implements AuditoriaCompleta {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(updatable = false, nullable = false, columnDefinition = "UUID")
+    @GeneratedValue
+    @UuidGenerator
     private UUID id;
+
+    @PrePersist
+    public void gerarIdSeNecessario() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+    }
 
     @Setter
     @Column(name = "nome", nullable = false, length = 255)
@@ -61,4 +76,5 @@ public class Organizacao extends EntidadeBase<UUID> implements AuditoriaCompleta
         this.criadoPor = criadoPor;
         this.criadoEm = OffsetDateTime.now(ZoneOffset.UTC);
     }
+
 }

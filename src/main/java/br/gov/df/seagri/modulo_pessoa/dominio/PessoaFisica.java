@@ -85,4 +85,8 @@ public class PessoaFisica extends Pessoa {
     @JoinColumn(name = "id_profissao")
     private Profissao profissao;
 
+    public boolean estaFalecida() {
+        return getDataTermino() != null;
+    }
+
 }

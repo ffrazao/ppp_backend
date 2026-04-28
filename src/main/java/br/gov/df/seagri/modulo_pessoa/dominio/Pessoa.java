@@ -6,10 +6,12 @@ import org.hibernate.envers.Audited;
 
 import br.gov.df.seagri.dominio_central.dominio.AuditoriaCompleta;
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
+import br.gov.df.seagri.modulo_auditoria.dominio.AuditoriaListener;
 import br.gov.df.seagri.modulo_pessoa.enumeracao.StatusPessoaEnum;
 import br.gov.df.seagri.modulo_pessoa.enumeracao.TipoPessoaEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -17,8 +19,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,11 +28,12 @@ import lombok.Setter;
 @Entity
 @Table(name = "pessoa", schema = "pessoa")
 @Inheritance(strategy = InheritanceType.JOINED)
-@Audited
 @Getter
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@Audited
+@EntityListeners(AuditoriaListener.class)
 public class Pessoa extends EntidadeBase<Long> implements AuditoriaCompleta {
 
     @Id
@@ -78,28 +79,4 @@ public class Pessoa extends EntidadeBase<Long> implements AuditoriaCompleta {
     @Column(name = "atualizado_em", nullable = false)
     private OffsetDateTime atualizadoEm;
 
-    // =========================
-    // CALLBACKS (boa prática)
-    // =========================
-    @PrePersist
-    public void prePersist() {
-        if (criadoEm == null) {
-            criadoEm = OffsetDateTime.now();
-        }
-        if (criadoPor == null) {
-            criadoPor = "sistema"; // ideal: pegar do contexto
-        }
-
-        // clone na criação (sua regra)
-        atualizadoEm = criadoEm;
-        atualizadoPor = criadoPor;
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        atualizadoEm = OffsetDateTime.now();
-        if (atualizadoPor == null) {
-            atualizadoPor = "sistema"; // ideal: contexto
-        }
-    }
 }

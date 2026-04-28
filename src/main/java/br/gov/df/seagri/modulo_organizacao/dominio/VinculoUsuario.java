@@ -4,17 +4,22 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.envers.Audited;
+
 import br.gov.df.seagri.dominio_central.dominio.AuditoriaCompleta;
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
 import br.gov.df.seagri.dominio_central.dominio.PertenceOrganizacao;
+import br.gov.df.seagri.modulo_auditoria.dominio.AuditoriaListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
@@ -25,18 +30,28 @@ import lombok.ToString;
 
 @Entity
 @Table(schema = "folha_ponto", name = "vinculo_usuario", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"usuario_id", "organizacao_id"})
+        @UniqueConstraint(columnNames = { "usuario_id", "organizacao_id" })
 })
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(callSuper = true)
+@Audited
+@EntityListeners(AuditoriaListener.class)
 public class VinculoUsuario extends EntidadeBase<UUID> implements AuditoriaCompleta, PertenceOrganizacao {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(updatable = false, nullable = false, columnDefinition = "UUID")
+    @GeneratedValue
+    @UuidGenerator
     private UUID id;
+
+    @PrePersist
+    public void gerarIdSeNecessario() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+    }
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -94,4 +109,5 @@ public class VinculoUsuario extends EntidadeBase<UUID> implements AuditoriaCompl
     public UUID obterOrganizacaoId() {
         return (UUID) this.organizacao.getId();
     }
+
 }
