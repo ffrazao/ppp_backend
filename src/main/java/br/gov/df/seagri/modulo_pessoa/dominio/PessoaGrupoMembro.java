@@ -17,11 +17,10 @@ import org.hibernate.envers.Audited;
 @NoArgsConstructor
 public class PessoaGrupoMembro  extends EntidadeBase<Long> {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Override
-    public Long getId() {
-        return super.getId();
-    }
+    @Column(updatable = false, nullable = false)
+    private Long id;
 
     // =========================
     // RELACIONAMENTOS

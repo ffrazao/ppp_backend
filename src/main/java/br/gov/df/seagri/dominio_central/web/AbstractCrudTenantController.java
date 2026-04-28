@@ -1,16 +1,23 @@
 package br.gov.df.seagri.dominio_central.web;
 
-import br.gov.df.seagri.dominio_central.aplicacao.CrudTenantSrv;
-import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
-
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public abstract class AbstractCrudTenantController<T extends EntidadeBase<ID>, REQ, RES, ID> extends AbstractApiController {
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import br.gov.df.seagri.dominio_central.aplicacao.CrudTenantSrv;
+import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
+import jakarta.validation.Valid;
+
+public abstract class AbstractCrudTenantController<T extends EntidadeBase<ID>, REQ, RES, ID extends Serializable> extends AbstractApiController {
 
     // A sua sugestão aplicada perfeitamente: o estado reside no pai!
     protected final CrudTenantSrv<T, ID> servico;

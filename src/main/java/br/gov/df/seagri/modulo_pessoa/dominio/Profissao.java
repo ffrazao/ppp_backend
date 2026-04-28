@@ -20,11 +20,10 @@ import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
 @NoArgsConstructor
 public class Profissao extends EntidadeBase<Long> {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Override
-    public Long getId() {
-        return super.getId();
-    }
+    @Column(updatable = false, nullable = false)
+    private Long id;
 
     // =========================
     // NOME

@@ -1,20 +1,23 @@
 package br.gov.df.seagri.dominio_central.dominio;
 
-import jakarta.persistence.Column;
+import java.io.Serializable;
+
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @MappedSuperclass
 @Getter
-@Setter
+@Setter(AccessLevel.PROTECTED) // id não deve ser alterado livremente
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public abstract class EntidadeBase<ID> {
+@ToString
+public abstract class EntidadeBase<ID extends Serializable> implements Serializable {
 
     @Id
-    @Column(name = "id", updatable = false, nullable = false)
     @EqualsAndHashCode.Include
     private ID id;
 

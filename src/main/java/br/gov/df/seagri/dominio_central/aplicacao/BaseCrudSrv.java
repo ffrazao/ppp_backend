@@ -7,9 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.util.List;
 
-public abstract class BaseCrudSrv<T extends EntidadeBase<ID>, ID> implements CrudSrv<T, ID> {
+public abstract class BaseCrudSrv<T extends EntidadeBase<ID>, ID extends Serializable> implements CrudSrv<T, ID> {
 
     protected final BaseDAO<T, ID> dao;
 

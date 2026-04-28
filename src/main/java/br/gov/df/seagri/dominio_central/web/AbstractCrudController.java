@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
  * Utiliza MapStruct para conversão automática.
  */
 // Adicionamos o "extends EntidadeBase" logo após o T
-public abstract class AbstractCrudController<T extends EntidadeBase<ID>, REQ, RES, ID> extends AbstractApiController {
+public abstract class AbstractCrudController<T extends EntidadeBase<ID>, REQ, RES, ID extends Serializable> extends AbstractApiController {
 
     protected final BaseCrudSrv<T, ID> servico;
     protected final BaseMapper<T, REQ, RES> mapper;

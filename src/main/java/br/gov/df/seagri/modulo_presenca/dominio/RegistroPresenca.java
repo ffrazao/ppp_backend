@@ -12,18 +12,28 @@ import br.gov.df.seagri.dominio_central.dominio.PertenceOrganizacao;
 import br.gov.df.seagri.dominio_central.dominio.RastreavelCriacao;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(schema = "folha_ponto", name = "registro_presenca")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(callSuper = true)
 public class RegistroPresenca extends EntidadeBase<UUID> implements PertenceOrganizacao, RastreavelCriacao {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(updatable = false, nullable = false, columnDefinition = "UUID")
+    private UUID id;
 
     @Column(name = "organizacao_id", nullable = false, updatable = false)
     private UUID organizacaoId;

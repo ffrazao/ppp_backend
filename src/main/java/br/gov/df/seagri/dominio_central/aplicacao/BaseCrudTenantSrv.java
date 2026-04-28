@@ -1,5 +1,6 @@
 package br.gov.df.seagri.dominio_central.aplicacao;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,7 +13,9 @@ import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
 import br.gov.df.seagri.dominio_central.dominio.PertenceOrganizacao;
 import br.gov.df.seagri.dominio_central.infraestrutura.BaseDAO;
 
-public abstract class BaseCrudTenantSrv<T extends EntidadeBase<ID> & PertenceOrganizacao, ID> implements CrudTenantSrv<T, ID> {
+public abstract class BaseCrudTenantSrv<T extends EntidadeBase<ID> &
+    PertenceOrganizacao, ID extends Serializable>
+    implements CrudTenantSrv<T, ID> {
 
     protected final BaseDAO<T, ID> dao;
     protected final ValidadorTenant validadorTenant;

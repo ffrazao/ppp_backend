@@ -25,11 +25,10 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 public class PessoaRelacionamento  extends EntidadeBase<Long> {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Override
-    public Long getId() {
-        return super.getId();
-    }
+    @Column(updatable = false, nullable = false)
+    private Long id;
 
     // =========================
     // RELAÇÃO

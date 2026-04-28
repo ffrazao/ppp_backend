@@ -8,17 +8,28 @@ import br.gov.df.seagri.dominio_central.dominio.AuditoriaCompleta;
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(schema = "folha_ponto", name = "organizacao")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(callSuper = true)
 public class Organizacao extends EntidadeBase<UUID> implements AuditoriaCompleta {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(updatable = false, nullable = false, columnDefinition = "UUID")
+    private UUID id;
 
     @Setter
     @Column(name = "nome", nullable = false, length = 255)

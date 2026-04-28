@@ -22,11 +22,10 @@ import java.util.List;
 @NoArgsConstructor
 public class RelacaoTipo extends EntidadeBase<Long> {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Override
-    public Long getId() {
-        return super.getId();
-    }
+    @Column(updatable = false, nullable = false)
+    private Long id;
 
     // =========================
     // IDENTIFICAÇÃO

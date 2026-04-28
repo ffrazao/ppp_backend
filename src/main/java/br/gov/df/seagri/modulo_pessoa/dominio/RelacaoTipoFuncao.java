@@ -23,11 +23,10 @@ import org.hibernate.envers.Audited;
 @NoArgsConstructor
 public class RelacaoTipoFuncao extends EntidadeBase<Long> {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Override
-    public Long getId() {
-        return super.getId();
-    }
+    @Column(updatable = false, nullable = false)
+    private Long id;
 
     // =========================
     // RELAÇÃO COM TIPO

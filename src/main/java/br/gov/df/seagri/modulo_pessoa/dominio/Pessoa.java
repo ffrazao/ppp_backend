@@ -35,11 +35,10 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper = true)
 public class Pessoa extends EntidadeBase<Long> implements AuditoriaCompleta {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Override
-    public Long getId() {
-        return super.getId();
-    }
+    @Column(updatable = false, nullable = false)
+    private Long id;
 
     // =========================
     // CAMPOS PRINCIPAIS
