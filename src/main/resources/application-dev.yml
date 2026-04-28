@@ -4,7 +4,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-    show-sql: true
     properties:
       hibernate:
         "[format_sql]": true
@@ -98,7 +97,7 @@ logging:
 
     # SQL e parâmetros
     "[org.hibernate.SQL]": DEBUG
-    "[org.hibernate.type.descriptor.sql]": TRACE
+    "[org.hibernate.orm.jdbc.bind]": TRACE
     "[org.hibernate.orm.results]": WARN
 
     # Transações
