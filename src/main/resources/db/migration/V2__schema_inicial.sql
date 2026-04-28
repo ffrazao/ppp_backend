@@ -58,7 +58,7 @@ CREATE TABLE vinculo_usuario (
 CREATE UNIQUE INDEX uq_vinculo_usuario_org ON vinculo_usuario(usuario_id, organizacao_id);
 
 -- tabela que gere a lotação das pessoas
-CREATE TABLE public.alocacao_unidade (
+CREATE TABLE alocacao_unidade (
     id uuid NOT NULL,
     vinculo_usuario_id uuid NOT NULL,
     unidade_id uuid NOT NULL,
@@ -72,8 +72,8 @@ CREATE TABLE public.alocacao_unidade (
     atualizado_em timestamp NULL,
     
     CONSTRAINT alocacao_unidade_pkey PRIMARY KEY (id),
-    CONSTRAINT fk_alocacao_vinculo FOREIGN KEY (vinculo_usuario_id) REFERENCES public.vinculo_usuario(id) ON DELETE CASCADE,
-    CONSTRAINT fk_alocacao_unidade FOREIGN KEY (unidade_id) REFERENCES public.unidade(id) ON DELETE CASCADE,
+    CONSTRAINT fk_alocacao_vinculo FOREIGN KEY (vinculo_usuario_id) REFERENCES vinculo_usuario(id) ON DELETE CASCADE,
+    CONSTRAINT fk_alocacao_unidade FOREIGN KEY (unidade_id) REFERENCES unidade(id) ON DELETE CASCADE,
     
     -- NOVA REGRA APLICADA: Protegendo o domínio do papel operacional no banco (RFC-0010)
     CONSTRAINT chk_alocacao_papel CHECK (papel_operacional IN (
@@ -93,7 +93,7 @@ CREATE TABLE public.alocacao_unidade (
     ))
 );
 
-CREATE INDEX idx_alocacao_vinculo ON public.alocacao_unidade(vinculo_usuario_id, status);
+CREATE INDEX idx_alocacao_vinculo ON alocacao_unidade(vinculo_usuario_id, status);
 
 -- 4. convite
 CREATE TABLE convite (
@@ -113,10 +113,10 @@ CREATE TABLE convite (
 CREATE UNIQUE INDEX uq_convite_codigo ON convite(codigo);
 
 -- Garante a integridade referencial com a tabela unidade
-ALTER TABLE public.convite ADD CONSTRAINT fk_convite_unidade FOREIGN KEY (unidade_id) REFERENCES public.unidade(id) ON DELETE CASCADE;
+ALTER TABLE convite ADD CONSTRAINT fk_convite_unidade FOREIGN KEY (unidade_id) REFERENCES unidade(id) ON DELETE CASCADE;
 
 -- Aplica a mesma constraint de domínio que criamos hoje mais cedo
-ALTER TABLE public.convite ADD CONSTRAINT chk_convite_papel CHECK (papel_esperado IN (
+ALTER TABLE convite ADD CONSTRAINT chk_convite_papel CHECK (papel_esperado IN (
     'PARTICIPANTE', 'MANAGER', 'GESTOR_TITULAR', 'GESTOR_SUBSTITUTO', 'ASSISTENTE', 'OWNER'
 ));
 
