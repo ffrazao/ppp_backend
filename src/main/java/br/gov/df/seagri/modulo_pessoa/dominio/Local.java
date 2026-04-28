@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Local  extends EntidadeBase<Long> {
+public class Local extends EntidadeBase<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
