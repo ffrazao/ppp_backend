@@ -12,6 +12,8 @@ import br.gov.df.seagri.dominio_central.dominio.PertenceOrganizacao;
 import br.gov.df.seagri.dominio_central.dominio.RastreavelCriacao;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,6 +26,12 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RegistroPresenca extends EntidadeBase<UUID> implements PertenceOrganizacao, RastreavelCriacao {
+
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Override
+    public UUID getId() {
+        return super.getId();
+    }
 
     @Column(name = "organizacao_id", nullable = false, updatable = false)
     private UUID organizacaoId;

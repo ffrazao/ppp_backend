@@ -10,6 +10,8 @@ import br.gov.df.seagri.dominio_central.dominio.PertenceOrganizacao;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -24,6 +26,12 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Relacionamento extends EntidadeBase<UUID> implements AuditoriaCompleta, PertenceOrganizacao {
+
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Override
+    public UUID getId() {
+        return super.getId();
+    }
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "organizacao_id", nullable = false, updatable = false)

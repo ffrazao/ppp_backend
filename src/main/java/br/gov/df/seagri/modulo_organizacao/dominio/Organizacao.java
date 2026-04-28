@@ -8,6 +8,8 @@ import br.gov.df.seagri.dominio_central.dominio.AuditoriaCompleta;
 import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -19,6 +21,12 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Organizacao extends EntidadeBase<UUID> implements AuditoriaCompleta {
+
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Override
+    public UUID getId() {
+        return super.getId();
+    }
 
     @Setter
     @Column(name = "nome", nullable = false, length = 255)

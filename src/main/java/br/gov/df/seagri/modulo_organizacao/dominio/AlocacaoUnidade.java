@@ -9,6 +9,8 @@ import br.gov.df.seagri.dominio_central.dominio.EntidadeBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -22,6 +24,12 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AlocacaoUnidade extends EntidadeBase<UUID> implements AuditoriaCompleta {
+
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Override
+    public UUID getId() {
+        return super.getId();
+    }
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
