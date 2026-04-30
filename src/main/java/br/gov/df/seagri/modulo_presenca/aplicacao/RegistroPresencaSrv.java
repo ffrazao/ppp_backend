@@ -1,5 +1,6 @@
 package br.gov.df.seagri.modulo_presenca.aplicacao;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,20 +28,20 @@ public class RegistroPresencaSrv {
     private final RegistroPresencaDAO registroPresencaDAO;
     private final UnidadeSrv unidadeSrv;
     private final GeolocalizacaoSrv geolocalizacaoSrv;
-    //private final LocalArmazenamentoFotoSrv armazenamentoLocalSrv;
+    // private final LocalArmazenamentoFotoSrv armazenamentoLocalSrv;
     private final S3StorageArmazenamentoFotoSrv s3StorageSrv;
 
     public RegistroPresencaSrv(RegistroPresencaDAO registroPresencaDAO,
-                               UnidadeSrv unidadeSrv,
-                               GeolocalizacaoSrv geolocalizacaoSrv,
-                               BiometriaClient biometriaClient,
-                               //LocalArmazenamentoFotoSrv armazenamentoLocalSrv,
-                               S3StorageArmazenamentoFotoSrv s3StorageSrv) {
+            UnidadeSrv unidadeSrv,
+            GeolocalizacaoSrv geolocalizacaoSrv,
+            BiometriaClient biometriaClient,
+            // LocalArmazenamentoFotoSrv armazenamentoLocalSrv,
+            S3StorageArmazenamentoFotoSrv s3StorageSrv) {
         this.registroPresencaDAO = registroPresencaDAO;
         this.unidadeSrv = unidadeSrv;
         this.geolocalizacaoSrv = geolocalizacaoSrv;
         this.biometriaClient = biometriaClient;
-        //this.armazenamentoLocalSrv = armazenamentoLocalSrv;
+        // this.armazenamentoLocalSrv = armazenamentoLocalSrv;
         this.s3StorageSrv = s3StorageSrv;
     }
 
@@ -48,8 +49,8 @@ public class RegistroPresencaSrv {
     public RegistroPresenca registrar(UUID organizacaoId, String userId, RegistroPresencaRequestDTO dto) {
 
         // Rastreador visual no log para confirmar a chegada da imagem Base64
-        if (dto.getFotoBase64() != null) {
-            log.debug("📸 SUCESSO! Foto recebida no Java. Tamanho: {} caracter(es).", dto.getFotoBase64().length());
+        if (dto.getFoto() != null) {
+            log.debug("📸 SUCESSO! Foto recebida no Java. Tamanho: {} caracter(es).", dto.getFoto().getSize());
         } else {
             log.debug("❌ AVISO: A foto chegou NULA. O usuário negou a permissão da câmera.");
         }
@@ -60,7 +61,8 @@ public class RegistroPresencaSrv {
         String statusAdministrativo = "VALIDO";
         Double pontuacaoRisco = 0.0;
 
-        // Usaremos uma Lista em vez de StringBuilder para facilitar a conversão para JSON (exigência do PostgreSQL JSONB)
+        // Usaremos uma Lista em vez de StringBuilder para facilitar a conversão para
+        // JSON (exigência do PostgreSQL JSONB)
         List<String> indicadores = new ArrayList<>();
 
         // 1. Validação de GPS (O usuário recusou a localização?)
@@ -69,12 +71,12 @@ public class RegistroPresencaSrv {
             pontuacaoRisco += 50.0;
             indicadores.add("SEM_GPS"); // Adiciona na lista sem os colchetes
         } else {
-            // Se tem GPS e a unidade possui centro geográfico configurado, calcula a distância
+            // Se tem GPS e a unidade possui centro geográfico configurado, calcula a
+            // distância
             if (unidade.getCentroGeoLat() != null && unidade.getCentroGeoLng() != null) {
                 double distancia = geolocalizacaoSrv.calcularDistanciaMetros(
                         dto.getLatitude(), dto.getLongitude(),
-                        unidade.getCentroGeoLat(), unidade.getCentroGeoLng()
-                );
+                        unidade.getCentroGeoLat(), unidade.getCentroGeoLng());
 
                 // Se estiver muito longe da unidade, penaliza
                 if (distancia > unidade.getRaioGeoMetros()) {
@@ -89,12 +91,14 @@ public class RegistroPresencaSrv {
 
         // 2. Validação de Biometria (O usuário recusou a câmera?)
         UUID referenciaBiometrica = null;
-        if (dto.getFotoBase64() != null) {
-            // referenciaBiometrica = armazenamentoLocalSrv.salvarFotoBase64(dto.getFotoBase64());
-            // log.debug("UUID temporário da foto: {} - armazenamento local", referenciaBiometrica);
-
-            referenciaBiometrica = s3StorageSrv.salvarFotoBase64(dto.getFotoBase64());
-            log.debug("UUID da foto no S3: {} - armazenamento em s3", referenciaBiometrica);
+        if (dto.getFoto() != null && !dto.getFoto().isEmpty()) {
+            try {
+                byte[] bytesImagem = dto.getFoto().getBytes();
+                referenciaBiometrica = s3StorageSrv.salvarFoto(bytesImagem);
+                log.debug("UUID da foto no S3: {} - armazenamento em s3", referenciaBiometrica);
+            } catch (IOException e) {
+                throw new RuntimeException("Erro ao ler bytes da foto", e);
+            }
         }
 
         if (referenciaBiometrica == null) {
@@ -104,11 +108,13 @@ public class RegistroPresencaSrv {
         } else {
             // comparar a foto biometrica com a foto de referencia do usuário
             try {
-                Map<String,Object> verificaFace = biometriaClient.verificarFace(dto.getFotoBase64(), dto.getFotoBase64());
+                byte[] bytesImagem = dto.getFoto().getBytes();
+                Map<String, Object> verificaFace = biometriaClient.verificarFace(bytesImagem, bytesImagem);
 
                 Boolean isMatch = (Boolean) Optional.ofNullable(verificaFace.get("is_match")).orElse(Boolean.FALSE);
 
-                Boolean falhaTecnica = (Boolean) Optional.ofNullable(verificaFace.get("tecnico_falha")).orElse(Boolean.FALSE);
+                Boolean falhaTecnica = (Boolean) Optional.ofNullable(verificaFace.get("tecnico_falha"))
+                        .orElse(Boolean.FALSE);
 
                 // Lógica de Ponto Pendente a todo custo
                 if (falhaTecnica) {
@@ -129,13 +135,15 @@ public class RegistroPresencaSrv {
             }
         }
 
-        // 3. Converte a Lista do Java para uma String em formato JSON Array válido para o PostgreSQL
+        // 3. Converte a Lista do Java para uma String em formato JSON Array válido para
+        // o PostgreSQL
         String jsonIndicadores = "[]";
         if (!indicadores.isEmpty()) {
             jsonIndicadores = "[\"" + String.join("\", \"", indicadores) + "\"]";
         }
 
-        // Cria o evento bruto e imutável de presença (Sempre preservado conforme RFC-008)
+        // Cria o evento bruto e imutável de presença (Sempre preservado conforme
+        // RFC-008)
         RegistroPresenca registro = new RegistroPresenca(
                 organizacaoId,
                 unidade.getId(),
@@ -146,8 +154,7 @@ public class RegistroPresencaSrv {
                 dto.getDispositivoId(),
                 dto.getModoRegistro(),
                 dto.getCapturadoEm(),
-                "RECEBIDO"
-        );
+                "RECEBIDO");
 
         // Aplica os resultados da análise antifraude
         registro.setStatusAdministrativo(statusAdministrativo);
@@ -163,6 +170,7 @@ public class RegistroPresencaSrv {
 
         return registroPresencaDAO.save(registro);
     }
+
     // Método fiel ao nome declarado na sua interface RegistroPresencaDAO
     public List<RegistroPresenca> buscarPorUsuario(String usuarioId) {
         return registroPresencaDAO.buscarPorUsuario(usuarioId);
@@ -180,7 +188,8 @@ public class RegistroPresencaSrv {
         }
 
         byte[] result = null;
-        // result = armazenamentoLocalSrv.recuperarFoto(presenca.getReferenciaBiometrica());
+        // result =
+        // armazenamentoLocalSrv.recuperarFoto(presenca.getReferenciaBiometrica());
 
         result = s3StorageSrv.recuperarFoto(presenca.getReferenciaBiometrica());
 

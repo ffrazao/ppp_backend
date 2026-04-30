@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
 @Slf4j
@@ -44,19 +45,22 @@ public class LocalArmazenamentoFotoSrv implements ArmazenamentoFotoSrv {
         }
 
         try {
-            // 1. Isola apenas a string Base64 pura (Remove o prefixo 'data:image/jpeg;base64,')
+            // 1. Isola apenas a string Base64 pura (Remove o prefixo
+            // 'data:image/jpeg;base64,')
             String base64Limpo = fotoBase64;
             if (fotoBase64.contains(",")) {
                 base64Limpo = fotoBase64.substring(fotoBase64.indexOf(",") + 1);
             }
 
-            // 2. Limpeza profunda: Remove espaços e quebras de linha que o JSON pode ter injetado
+            // 2. Limpeza profunda: Remove espaços e quebras de linha que o JSON pode ter
+            // injetado
             base64Limpo = base64Limpo.replaceAll("\\s+", "");
 
             // 3. Decodifica a imagem binária
             byte[] bytesImagem = Base64.getDecoder().decode(base64Limpo);
 
-            // 4. Salva no disco (Garante a imutabilidade gerando um UUID único para o arquivo)
+            // 4. Salva no disco (Garante a imutabilidade gerando um UUID único para o
+            // arquivo)
             UUID referenciaImagem = UUID.randomUUID();
             Path caminhoArquivo = getDiretorioRaiz().resolve(referenciaImagem.toString() + ".jpg");
 
@@ -81,6 +85,12 @@ public class LocalArmazenamentoFotoSrv implements ArmazenamentoFotoSrv {
         }
     }
 
+    @Override
+    public UUID salvarFoto(byte[] bytesImagem) {
+        throw new UnsupportedOperationException(
+                "Este método não é suportado nesta implementação. Use salvarFotoBase64.");
+    }
+
     // Método para ler a imagem física e devolvê-la para a web
     @Override
     public byte[] recuperarFoto(UUID referenciaImagem) {
@@ -93,7 +103,8 @@ public class LocalArmazenamentoFotoSrv implements ArmazenamentoFotoSrv {
             Path caminhoArquivo = getDiretorioRaiz().resolve(referenciaImagem.toString() + ".jpg");
             if (Files.exists(caminhoArquivo)) {
                 byte[] result = Files.readAllBytes(caminhoArquivo);
-                log.debug("ID de Referência da imagem {} encontrado, tamanho {}.", referenciaImagem.toString(), result.length);
+                log.debug("ID de Referência da imagem {} encontrado, tamanho {}.", referenciaImagem.toString(),
+                        result.length);
                 return result;
             }
             log.debug("ID de Referência ({}) não encontrado no disco", referenciaImagem.toString());

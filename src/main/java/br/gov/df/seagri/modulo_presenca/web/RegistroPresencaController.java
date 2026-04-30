@@ -1,5 +1,17 @@
 package br.gov.df.seagri.modulo_presenca.web;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import br.gov.df.seagri.dominio_central.web.AbstractApiController;
 import br.gov.df.seagri.dominio_central.web.ApiResponse;
 import br.gov.df.seagri.modulo_presenca.aplicacao.RegistroPresencaSrv;
@@ -7,12 +19,7 @@ import br.gov.df.seagri.modulo_presenca.dominio.RegistroPresenca;
 import br.gov.df.seagri.modulo_presenca.web.dto.RegistroPresencaMapper;
 import br.gov.df.seagri.modulo_presenca.web.dto.RegistroPresencaRequestDTO;
 import br.gov.df.seagri.modulo_presenca.web.dto.RegistroPresencaResponseDTO;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
-
-import java.util.UUID;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/orgs/{organizacaoId}/presencas")
@@ -26,33 +33,25 @@ public class RegistroPresencaController extends AbstractApiController {
         this.mapper = mapper;
     }
 
-    @PostMapping
-    // O Retorno agora protege a entidade e devolve o ResponseDTO
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<RegistroPresencaResponseDTO>> registrar(
             @PathVariable UUID organizacaoId,
-            @Valid @RequestBody RegistroPresencaRequestDTO request) {
+            @Valid @ModelAttribute RegistroPresencaRequestDTO request) {
 
-        String usuarioId = obterUsuarioAutenticado(); 
-
-        // CORREÇÃO 1: Chamando o novo serviço passando o DTO empacotado em vez de 10 parâmetros soltos
-        RegistroPresenca presencaSalva = registroPresencaSrv.registrar(
-                organizacaoId,
-                usuarioId,
-                request
-        );
-
-        // Converte a Entidade salva para DTO antes de devolver ao cliente
+        String usuarioId = obterUsuarioAutenticado();
+        RegistroPresenca presencaSalva = registroPresencaSrv.registrar(organizacaoId, usuarioId, request);
         return created(mapper.paraDto(presencaSalva));
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<RegistroPresencaResponseDTO>>> listarHistorico(
             @PathVariable UUID organizacaoId) {
-        
+
         // Extrai a identidade de quem está fazendo a requisição
         String usuarioId = obterUsuarioAutenticado();
 
-        // CORREÇÃO 2: Chamando o método com o nome correto alinhado com o seu DAO e Serviço
+        // CORREÇÃO 2: Chamando o método com o nome correto alinhado com o seu DAO e
+        // Serviço
         List<RegistroPresenca> historico = registroPresencaSrv.buscarPorUsuario(usuarioId);
 
         // Converte a lista de Entidades para a lista de DTOs usando o MapStruct

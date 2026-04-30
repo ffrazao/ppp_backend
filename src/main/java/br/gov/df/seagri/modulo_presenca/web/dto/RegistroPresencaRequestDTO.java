@@ -3,7 +3,7 @@ package br.gov.df.seagri.modulo_presenca.web.dto;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,6 +30,5 @@ public class RegistroPresencaRequestDTO {
     @NotNull(message = "O horário de captura é obrigatório")
     private OffsetDateTime capturadoEm;
 
-    @JsonProperty("fotoBase64")
-    private String fotoBase64;
+    private MultipartFile foto;
 }

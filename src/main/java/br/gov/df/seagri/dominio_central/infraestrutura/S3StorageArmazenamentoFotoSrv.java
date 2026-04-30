@@ -25,7 +25,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
 @Slf4j
-public class S3StorageArmazenamentoFotoSrv implements ArmazenamentoFotoSrv{
+public class S3StorageArmazenamentoFotoSrv implements ArmazenamentoFotoSrv {
 
     @Value("${storage.s3.endpoint}")
     private String endpoint;
@@ -48,7 +48,8 @@ public class S3StorageArmazenamentoFotoSrv implements ArmazenamentoFotoSrv{
             throw new IllegalStateException("Credenciais do S3 não configuradas corretamente no ambiente.");
         }
 
-        // Inicializa o cliente S3 apontando para o seu SeaweedFS local com credenciais estáticas
+        // Inicializa o cliente S3 apontando para o seu SeaweedFS local com credenciais
+        // estáticas
         this.s3Client = S3Client.builder()
                 .endpointOverride(URI.create(endpoint))
                 .region(Region.US_EAST_1) // Região fictícia obrigatória para o SDK
@@ -64,7 +65,8 @@ public class S3StorageArmazenamentoFotoSrv implements ArmazenamentoFotoSrv{
         try {
             s3Client.headBucket(HeadBucketRequest.builder().bucket(bucket).build());
         } catch (NoSuchBucketException e) {
-            // Se o bucket "seagri-fotos" não existir (como o seu XML mostrou vazio), ele cria agora!
+            // Se o bucket "seagri-fotos" não existir (como o seu XML mostrou vazio), ele
+            // cria agora!
             s3Client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
         }
     }
@@ -111,6 +113,26 @@ public class S3StorageArmazenamentoFotoSrv implements ArmazenamentoFotoSrv{
         }
     }
 
+    @Override
+    public UUID salvarFoto(byte[] bytesImagem) {
+        if (bytesImagem == null || bytesImagem.length == 0)
+            return null;
+
+        UUID referencia = UUID.randomUUID();
+        String nomeArquivo = referencia + ".jpg";
+
+        PutObjectRequest putRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(nomeArquivo)
+                .contentType("image/jpeg")
+                .build();
+
+        s3Client.putObject(putRequest, RequestBody.fromBytes(bytesImagem));
+        log.debug("💾 FOTO SALVA COM SUCESSO NO S3: {}", nomeArquivo);
+
+        return referencia;
+    }
+
     // Método para ler a imagem física e devolvê-la para a web
     @Override
     public byte[] recuperarFoto(UUID referenciaImagem) {
@@ -132,7 +154,8 @@ public class S3StorageArmazenamentoFotoSrv implements ArmazenamentoFotoSrv{
             ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(getObjectRequest);
             byte[] result = objectBytes.asByteArray();
 
-            log.debug("ID de Referência da imagem {} encontrado no S3, tamanho {}.", referenciaImagem.toString(), result.length);
+            log.debug("ID de Referência da imagem {} encontrado no S3, tamanho {}.", referenciaImagem.toString(),
+                    result.length);
             return result;
 
         } catch (NoSuchKeyException e) {
