@@ -1,20 +1,21 @@
 package br.gov.df.seagri.config;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.cache.interceptor.SimpleCacheErrorHandler;
 import org.springframework.cache.support.CompositeCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.cache.interceptor.SimpleCacheErrorHandler;
-
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 @Configuration
 @EnableCaching
@@ -26,10 +27,9 @@ public class CacheConfig {
         CaffeineCacheManager manager = new CaffeineCacheManager();
 
         manager.setCaffeine(
-            Caffeine.newBuilder()
-                .maximumSize(500)
-                .expireAfterWrite(10, TimeUnit.MINUTES)
-        );
+                Caffeine.newBuilder()
+                        .maximumSize(500)
+                        .expireAfterWrite(10, TimeUnit.MINUTES));
 
         return manager;
     }
@@ -49,14 +49,14 @@ public class CacheConfig {
 
     // 🔹 Orquestrador
     @Bean
+    @Primary
     public CacheManager cacheManager(
             CaffeineCacheManager caffeineCacheManager,
             RedisCacheManager redisCacheManager) {
 
         CompositeCacheManager manager = new CompositeCacheManager(
                 caffeineCacheManager,
-                redisCacheManager
-        );
+                redisCacheManager);
 
         manager.setFallbackToNoOpCache(false);
 
@@ -68,4 +68,5 @@ public class CacheConfig {
     public SimpleCacheErrorHandler errorHandler() {
         return new SimpleCacheErrorHandler();
     }
+
 }
