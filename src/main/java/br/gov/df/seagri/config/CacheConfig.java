@@ -1,0 +1,54 @@
+package br.gov.df.seagri.config;
+
+import com.github.benmanes.caffeine.cache.Caffeine;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.cache.interceptor.SimpleCacheErrorHandler;
+import org.springframework.cache.support.CompositeCacheManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+
+import java.util.concurrent.TimeUnit;
+
+@Configuration
+@EnableCaching
+public class CacheConfig {
+
+    // 🔹 L1 - Cache local (Caffeine)
+    @Bean
+    public CaffeineCacheManager caffeineCacheManager() {
+        CaffeineCacheManager manager = new CaffeineCacheManager();
+
+        manager.setCaffeine(
+            Caffeine.newBuilder()
+                .maximumSize(500)
+                .expireAfterWrite(10, TimeUnit.MINUTES)
+        );
+
+        return manager;
+    }
+
+    // 🔹 L2 - Redis já é auto-configurado pelo Spring Boot
+    @Bean
+    public CacheManager cacheManager(
+            CaffeineCacheManager caffeineCacheManager,
+            RedisCacheManager redisCacheManager) {
+
+        CompositeCacheManager manager = new CompositeCacheManager(
+                caffeineCacheManager,
+                redisCacheManager
+        );
+
+        manager.setFallbackToNoOpCache(false);
+
+        return manager;
+    }
+
+    // Evita quebrar app se Redis cair
+    @Bean
+    public SimpleCacheErrorHandler errorHandler() {
+        return new SimpleCacheErrorHandler();
+    }
+}

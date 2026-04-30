@@ -75,6 +75,13 @@ dependencies {
     // Cliente S3 (AWS SDK V2) para comunicação com o SeaweedFS
     implementation platform('software.amazon.awssdk:bom:2.25.11')
     implementation 'software.amazon.awssdk:s3'
+
+    // Cache (Spring)
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // Caffeine
+    implementation 'com.github.ben-manes.caffeine:caffeine'
 }
 
 tasks.named('test') {
