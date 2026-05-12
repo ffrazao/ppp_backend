@@ -20,6 +20,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,7 +40,7 @@ public class Pessoa extends EntidadeBase<Long> implements AuditoriaCompleta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false)
     private Long id;
 
     // =========================
@@ -48,16 +50,28 @@ public class Pessoa extends EntidadeBase<Long> implements AuditoriaCompleta {
     private String nome;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "tipo", nullable = false)
     private TipoPessoaEnum tipo;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status", nullable = false)
-    private StatusPessoaEnum status;
+    private StatusPessoaEnum status = StatusPessoaEnum.ATIVO;
 
+    /**
+     * Esta coluna representa o inicio da pessoa, (se pessoa fisica indica nascimento, 
+     * se pessoa juridica indica data de Inauguração, se pessoa grupo indica 
+     * data de criação)
+     */
     @Column(name = "data_inicio")
     private OffsetDateTime dataInicio;
 
+    /**
+     * Esta coluna representa o termino da pessoa, (se pessoa fisica indica falecimento, 
+     * se pessoa juridica indica data de fechamento, se pessoa grupo indica 
+     * data de encerramento)
+     */
     @Column(name = "data_termino")
     private OffsetDateTime dataTermino;
 

@@ -23,6 +23,12 @@ public class PessoaGrupo extends Pessoa {
     @Column(name = "nome_resumido_sigla")
     private String nomeResumidoSigla;
 
+    @Column(name = "descricao")
+    private String descricao;
+
+    // dataCriacao é o mesmo que pessoa.dataInicio
+    // dataEncerramento é o mesmo que pessoa.dataTermino
+
     /*
      * Convenção:
      * - Pessoa.nome → nome principal
@@ -30,28 +36,20 @@ public class PessoaGrupo extends Pessoa {
      */
 
     // =========================
-    // CICLO DE VIDA
-    // =========================
-    @Column(name = "data_criacao_grupo")
-    private LocalDate dataCriacaoGrupo;
-
-    // data_termino herdado de Pessoa
-
-    // =========================
     // HIERARQUIA ENTRE GRUPOS
     // =========================
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_grupo_pai")
-    private PessoaGrupo grupoPai;
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "id_grupo_pai")
+    // private PessoaGrupo grupoPai;
 
-    @OneToMany(mappedBy = "grupoPai")
-    private List<PessoaGrupo> subgrupos;
+    // @OneToMany(mappedBy = "grupoPai")
+    // private List<PessoaGrupo> subgrupos;
 
-    @Column(name = "nome_relacao_pai_para_filho")
-    private String nomeRelacaoPaiParaFilho;
+    // @Column(name = "nome_relacao_pai_para_filho")
+    // private String nomeRelacaoPaiParaFilho;
 
-    @Column(name = "nome_relacao_filho_para_pai")
-    private String nomeRelacaoFilhoParaPai;
+    // @Column(name = "nome_relacao_filho_para_pai")
+    // private String nomeRelacaoFilhoParaPai;
 
     /*
      * Exemplo:
@@ -62,6 +60,6 @@ public class PessoaGrupo extends Pessoa {
     // =========================
     // MEMBROS DO GRUPO
     // =========================
-    @OneToMany(mappedBy = "grupo")
-    private List<PessoaGrupoMembro> membros;
+    // @OneToMany(mappedBy = "grupo")
+    // private List<PessoaGrupoMembro> membros;
 }

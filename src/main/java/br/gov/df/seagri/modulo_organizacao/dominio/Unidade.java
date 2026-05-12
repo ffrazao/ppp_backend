@@ -42,6 +42,7 @@ public class Unidade extends EntidadeBase<UUID> implements AuditoriaCompleta, Pe
     @Column(updatable = false, nullable = false, columnDefinition = "UUID")
     @GeneratedValue
     @UuidGenerator
+    @Setter
     private UUID id;
 
     @PrePersist

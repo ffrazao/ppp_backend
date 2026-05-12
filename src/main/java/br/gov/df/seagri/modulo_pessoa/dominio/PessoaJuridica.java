@@ -31,6 +31,9 @@ public class PessoaJuridica extends Pessoa {
     @Column(name = "cnpj", length = 14)
     private String cnpj;
 
+    // dataInauguracao é o mesmo que pessoa.dataInicio
+    // dataFechamento é o mesmo que pessoa.dataTermino
+
     @Column(name = "razao_social", nullable = false)
     private String razaoSocial;
 

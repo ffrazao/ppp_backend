@@ -3,6 +3,8 @@ package br.gov.df.seagri.modulo_pessoa.dominio;
 import br.gov.df.seagri.modulo_pessoa.enumeracao.*;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.hibernate.envers.Audited;
 
 import java.time.LocalDate;
@@ -23,19 +25,22 @@ public class PessoaFisica extends Pessoa {
     @Column(name = "rg")
     private String rg;
 
-    @Column(name = "data_nascimento")
-    private LocalDate dataNascimento;
+    // dataNascimento é o mesmo que pessoa.dataInicio
+    // dataFalecimento é o mesmo que pessoa.dataTermino
 
     @Enumerated(EnumType.STRING)
     @Column(name = "sexo")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private SexoEnum sexo;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_civil")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private EstadoCivilEnum estadoCivil;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "nacionalidade")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private NacionalidadeEnum nacionalidade;
 
     @Column(name = "apelido")

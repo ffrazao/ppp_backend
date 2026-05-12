@@ -1,42 +1,44 @@
 -- =========================================
 -- SCHEMA
 -- =========================================
-CREATE SCHEMA IF NOT EXISTS pessoa;
+CREATE SCHEMA pessoa AUTHORIZATION backend;
+
 SET search_path TO pessoa;
 
 -- =========================================
 -- ENUMS
 -- =========================================
-CREATE TYPE tipo_pessoa_enum AS ENUM ('fisica','juridica','grupo');
-CREATE TYPE status_enum AS ENUM ('ativo','inativo','suspenso');
+CREATE TYPE tipo_pessoa_enum AS ENUM ('FISICA','JURIDICA','GRUPO');
 
-CREATE TYPE sexo_enum AS ENUM ('masculino','feminino','outro','nao_informado');
+CREATE TYPE status_enum AS ENUM ('ATIVO','INATIVO','SUSPENSO');
+
+CREATE TYPE sexo_enum AS ENUM ('MASCULINO','FEMININO','OUTRO','NAO_INFORMADO');
 
 CREATE TYPE estado_civil_enum AS ENUM (
-    'solteiro','casado','divorciado','viuvo',
-    'uniao_estavel','separado','nao_informado'
+    'SOLTEIRO','CASADO','DIVORCIADO','VIUVO',
+    'UNIAO_ESTAVEL','SEPARADO','NAO_INFORMADO'
 );
 
 CREATE TYPE nacionalidade_enum AS ENUM (
-    'brasileira','estrangeira','nacionalizado','nao_informado'
+    'BRASILEIRA','ESTRANGEIRA','NACIONALIZADO','NAO_INFORMADO'
 );
 
 CREATE TYPE tipo_local_enum AS ENUM (
-    'pais','estado','municipio','bairro',
-    'logradouro','regiao','area_geografica',
-    'estabelecimento','local_generico'
+    'PAIS','ESTADO','MUNICIPIO','BAIRRO',
+    'LOGRADOURO','REGIAO','AREA_GEOGRAFICA',
+    'ESTABELECIMENTO','LOCAL_GENERICO'
 );
 
 CREATE TYPE tipo_contato_enum AS ENUM (
-    'telefone','email','endereco','pessoa_relacionada'
+    'TELEFONE','EMAIL','ENDERECO','PESSOA_RELACIONADA'
 );
 
 CREATE TYPE classificacao_contato_enum AS ENUM (
-    'residencial','comercial','outro'
+    'RESIDENCIAL','COMERCIAL','OUTRO'
 );
 
 CREATE TYPE papel_grupo_enum AS ENUM (
-    'gestor','membro','associado','interessado'
+    'GESTOR','MEMBRO','ASSOCIADO','INTERESSADO'
 );
 
 -- =========================================
@@ -67,16 +69,16 @@ CREATE TABLE pessoa (
 
     nome TEXT NOT NULL,
     tipo tipo_pessoa_enum NOT NULL,
-    status status_enum NOT NULL DEFAULT 'ativo',
+    status status_enum NOT NULL DEFAULT 'ATIVO',
 
     observacao TEXT,
 
     data_inicio DATE,
     data_termino DATE,
 
-    criado_por BIGINT NOT NULL,
+    criado_por varchar(64) NOT NULL,
     criado_em TIMESTAMPTZ NOT NULL DEFAULT now(),
-    atualizado_por BIGINT NOT NULL,
+    atualizado_por varchar(64) NOT NULL,
     atualizado_em TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -206,7 +208,7 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.local_falecimento_nome IS NOT NULL
        OR NEW.id_local_falecimento IS NOT NULL THEN
-        UPDATE pessoa SET status = 'inativo' WHERE id = NEW.id;
+        UPDATE pessoa.pessoa SET status = 'INATIVO' WHERE id = NEW.id;
     END IF;
     RETURN NEW;
 END;
@@ -225,7 +227,7 @@ BEGIN
     IF EXISTS (
         SELECT 1 FROM pessoa p WHERE p.id = NEW.id AND p.data_termino IS NOT NULL
     ) THEN
-        UPDATE pessoa SET status = 'inativo' WHERE id = NEW.id;
+        UPDATE pessoa SET status = 'INATIVO' WHERE id = NEW.id;
     END IF;
     RETURN NEW;
 END;
@@ -239,7 +241,7 @@ CREATE OR REPLACE FUNCTION trg_inativar_grupo()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.data_termino IS NOT NULL THEN
-        UPDATE pessoa SET status = 'inativo' WHERE id = NEW.id;
+        UPDATE pessoa.pessoa SET status = 'INATIVO' WHERE id = NEW.id;
     END IF;
     RETURN NEW;
 END;
@@ -254,19 +256,19 @@ FOR EACH ROW EXECUTE FUNCTION trg_inativar_grupo();
 -- =========================================
 CREATE OR REPLACE FUNCTION trg_validar_pais()
 RETURNS TRIGGER AS $$
-DECLARE sexo_mae sexo_enum;
-DECLARE sexo_pai sexo_enum;
+DECLARE sexo_mae pessoa.sexo_enum;
+DECLARE sexo_pai pessoa.sexo_enum;
 BEGIN
     IF NEW.id_pessoa_mae IS NOT NULL THEN
-        SELECT sexo INTO sexo_mae FROM pessoa_fisica WHERE id = NEW.id_pessoa_mae;
-        IF sexo_mae <> 'feminino' THEN
+        SELECT sexo INTO sexo_mae FROM pessoa.pessoa_fisica WHERE id = NEW.id_pessoa_mae;
+        IF sexo_mae <> 'FEMININO' THEN
             RAISE EXCEPTION 'Mãe inválida';
         END IF;
     END IF;
 
     IF NEW.id_pessoa_pai IS NOT NULL THEN
-        SELECT sexo INTO sexo_pai FROM pessoa_fisica WHERE id = NEW.id_pessoa_pai;
-        IF sexo_pai <> 'masculino' THEN
+        SELECT sexo INTO sexo_pai FROM pessoa.pessoa_fisica WHERE id = NEW.id_pessoa_pai;
+        IF sexo_pai <> 'MASCULINO' THEN
             RAISE EXCEPTION 'Pai inválido';
         END IF;
     END IF;
@@ -590,3 +592,94 @@ WITH RECURSIVE arvore AS (
     JOIN pessoa.pessoa p ON p.id = h.id_grupo_filho
 )
 SELECT * FROM arvore;
+
+-- pessoa.pessoa_aud definition
+
+-- Drop table
+
+-- DROP TABLE pessoa.pessoa_aud;
+
+CREATE TABLE pessoa.pessoa_aud (
+    id bigint NOT NULL,
+    rev BIGINT NOT NULL,
+    revtype SMALLINT,
+    nome text,
+    tipo pessoa.tipo_pessoa_enum,
+    status pessoa.status_enum,
+    observacao text,
+    data_inicio date,
+    data_termino date,
+    criado_por character varying(64),
+    criado_em timestamp with time zone,
+    atualizado_por character varying(64),
+    atualizado_em timestamp with time zone,
+    rev_end BIGINT,
+    revend_tstmp TIMESTAMP,
+    CONSTRAINT pessoa_aud_pkey PRIMARY KEY (id, rev),
+    CONSTRAINT fk_pessoa_aud_rev FOREIGN KEY (rev) REFERENCES auditoria.revinfo(id)
+);
+
+CREATE TABLE pessoa.pessoa_fisica_aud (
+    id bigint NOT NULL,
+    rev BIGINT NOT NULL,
+    revtype SMALLINT,
+    cpf character varying(11),
+    rg text,
+    apelido text,
+    id_pessoa_mae bigint,
+    id_pessoa_pai bigint,
+    nome_mae text,
+    nome_pai text,
+    local_nascimento_nome text,
+    id_local_nascimento bigint,
+    local_falecimento_nome text,
+    id_local_falecimento bigint,
+    sexo pessoa.sexo_enum,
+    estado_civil pessoa.estado_civil_enum,
+    nacionalidade pessoa.nacionalidade_enum,
+    id_profissao bigint,
+    profissao_nome text,
+    rev_end BIGINT,
+    revend_tstmp TIMESTAMP,
+    CONSTRAINT pessoa_fisica_aud_pkey PRIMARY KEY (id, rev),
+    CONSTRAINT fk_pessoa_fisica_aud_rev FOREIGN KEY (rev) REFERENCES auditoria.revinfo(id)
+);
+
+CREATE TABLE pessoa.pessoa_juridica_aud (
+    id bigint NOT NULL,
+    rev BIGINT NOT NULL,
+    revtype SMALLINT,
+    cnpj character varying(14),
+    inscricao_estadual text,
+    inscricao_municipal text,
+    razao_social text,
+    sigla text,
+    local_sede_nome text,
+    id_local_sede bigint,
+    natureza_juridica text,
+    regime_tributario text,
+    porte text,
+    capital_social numeric,
+    id_empresa_controladora bigint,
+    rev_end BIGINT,
+    revend_tstmp TIMESTAMP,
+    CONSTRAINT pessoa_juridica_aud_pkey PRIMARY KEY (id, rev),
+    CONSTRAINT fk_pessoa_juridica_aud_rev FOREIGN KEY (rev) REFERENCES auditoria.revinfo(id)
+);
+
+CREATE TABLE pessoa.pessoa_grupo_aud (
+    id bigint NOT NULL,
+    rev BIGINT NOT NULL,
+    revtype SMALLINT,
+    descricao text,
+    nome_resumido_sigla text,
+    rev_end BIGINT,
+    revend_tstmp TIMESTAMP,
+    CONSTRAINT pessoa_grupo_aud_pkey PRIMARY KEY (id, rev),
+    CONSTRAINT fk_pessoa_grupo_aud_rev FOREIGN KEY (rev) REFERENCES auditoria.revinfo(id)
+);
+
+
+-- Permissions
+
+GRANT ALL ON SCHEMA pessoa TO backend;

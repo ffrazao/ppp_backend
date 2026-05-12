@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.11'
+    id 'org.springframework.boot' version '3.5.14'
     id 'io.spring.dependency-management' version '1.1.4'
 }
 
@@ -89,7 +89,7 @@ tasks.named('test') {
 }
 
 tasks.withType(JavaCompile) {
-    options.annotationProcessorGeneratedSourcesDirectory = file("$buildDir/generated/sources/annotationProcessor/java/main")
+    options.generatedSourceOutputDirectory = file("$buildDir/generated/sources/annotationProcessor/java/main")
 }
 
 bootRun {

@@ -1,5 +1,7 @@
 package br.gov.df.seagri.modulo_presenca.infraestrutura;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -38,6 +40,7 @@ public class BiometriaClient {
 
             // Dispara a requisição POST para a IA em Python com tipagem segura
             return restClient.post()
+                    .uri("/api/v1/biometria/verify")
                     .body(requestBody)
                     .retrieve()
                     .body(new ParameterizedTypeReference<Map<String, Object>>() {
@@ -78,6 +81,7 @@ public class BiometriaClient {
             });
 
             return restClient.post()
+                    .uri("/api/v1/biometria/verify")
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .body(body)
                     .retrieve()
@@ -93,4 +97,51 @@ public class BiometriaClient {
             return fallback;
         }
     }
+
+    public byte[] extrairVetorBiometrico(String fotoBase64) {
+        log.info("[BIOMETRIA] Iniciando extração biométrica. Preparando payload para o motor Python...");
+
+        // CORREÇÃO: Extração segura do Base64, evitando o
+        // ArrayIndexOutOfBoundsException
+        String base64Data = fotoBase64;
+        if (fotoBase64 != null && fotoBase64.contains(",")) {
+            String[] partes = fotoBase64.split(",");
+            if (partes.length > 1) {
+                base64Data = partes[partes.length - 1]; // Pega com segurança o índice 1 (o base64 puro após a vírgula)
+            }
+        }
+
+        try {
+            // Decodifica a string base64 limpa para um array de bytes
+            byte[] imageBytes = Base64.getDecoder().decode(base64Data);
+
+            ByteArrayResource resource = new ByteArrayResource(imageBytes) {
+                @Override
+                public String getFilename() {
+                    return "selfie.jpg";
+                }
+            };
+
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("image_bytes", resource);
+
+            String vetorMatematicoJson = restClient.post()
+                    .uri("/api/v1/biometria/extract")
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(body)
+                    .retrieve()
+                    .body(String.class);
+
+            log.info("[BIOMETRIA] Vetor biométrico extraído com sucesso pela IA!");
+            return vetorMatematicoJson.getBytes(StandardCharsets.UTF_8);
+
+        } catch (IllegalArgumentException e) {
+            log.error("[BIOMETRIA] Erro ao decodificar a string Base64: {}", e.getMessage());
+            throw new RuntimeException("Formato de imagem inválido.", e);
+        } catch (Exception e) {
+            log.error("[BIOMETRIA] Falha ao comunicar com o motor biométrico Python: {}", e.getMessage());
+            throw new RuntimeException("Não foi possível extrair a biometria da face informada.", e);
+        }
+    }
+
 }
